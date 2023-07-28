@@ -1,0 +1,1 @@
+the cd reader of the story menu
