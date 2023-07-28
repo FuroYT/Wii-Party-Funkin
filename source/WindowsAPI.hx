@@ -20,7 +20,7 @@ package;
 class WindowsAPI {
     #if windows
     @:functionCode('
-        int darkMode = 1;
+        int darkMode = enable ? 1 : 0;
         HWND window = GetActiveWindow();
         if (S_OK != DwmSetWindowAttribute(window, 19, &darkMode, sizeof(darkMode))) {
             DwmSetWindowAttribute(window, 20, &darkMode, sizeof(darkMode));
@@ -28,28 +28,8 @@ class WindowsAPI {
         UpdateWindow(window);
     ')
     #end
-    public static function setWindowToDarkMode() {}
-
-    #if windows
-    @:functionCode('
-        int darkMode = 0;
-        HWND window = GetActiveWindow();
-        if (S_OK != DwmSetWindowAttribute(window, 19, &darkMode, sizeof(darkMode))) {
-            DwmSetWindowAttribute(window, 20, &darkMode, sizeof(darkMode));
-        }
-        UpdateWindow(window);
-    ')
-    #end
-    public static function setWindowToLightMode() {}
-
     public static function setWindowDarkModeValue(darkMode:Bool) {
-        if (darkMode) {
-            trace('window is now dark');
-            setWindowToDarkMode();
-        } else if (!darkMode) {
-            trace('window is now light');
-            setWindowToLightMode();
-        }
+        trace('window is now ' + (darkMode ? 'dark' : 'light'));
     }
 
     #if windows
