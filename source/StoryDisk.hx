@@ -9,6 +9,7 @@ using StringTools;
 class StoryDisk extends MusicBeatState {
     var discImage:FlxSprite;
     var textForDisc:FlxText;
+    var textForError:FlxText;
     override public function create() {
         discImage = new FlxSprite(FlxG.width / 2 + 50);
         add(discImage);
@@ -16,6 +17,10 @@ class StoryDisk extends MusicBeatState {
         add(textForDisc);
         textForDisc.alignment = CENTER;
         textForDisc.screenCenter(Y);
+        textForError = new FlxText(0, 0, FlxG.width, "", 26, true);
+        add(textForError);
+        textForError.alignment = CENTER;
+        textForError.screenCenter(Y);
         reloadDisk(true);
         super.create();
     }
@@ -76,6 +81,7 @@ class StoryDisk extends MusicBeatState {
         }
     }
     function showTextAlongDisk(text:String) {
+        FlxTween.tween(textForError, {y: textForError.y - 40, alpha: 0}, 0.5, {ease: FlxEase.circInOut});
         if (text != textForDisc.text) {
             var daVal = 50;
             FlxTween.tween(textForDisc, {x: textForDisc.x - daVal, alpha: 0}, 0.5, {ease: FlxEase.circInOut, onComplete: function(_) {
@@ -85,11 +91,26 @@ class StoryDisk extends MusicBeatState {
             }});
         }
     }
+    var defaultErrorY:Float = 0;
     function showErrorText(error:String) {
-        trace(error); //temp for now
+        FlxTween.tween(discImage, {alpha: 0}, 0.5, {ease: FlxEase.circInOut});
+        FlxTween.tween(textForDisc, {alpha: 0}, 0.5, {ease: FlxEase.circInOut, onComplete: function(_) {
+            textForError.text = error;
+            textForError.screenCenter(XY);
+            defaultErrorY = textForError.y;
+            textForDisc.text = "";
+            if (defaultErrorY != textForError.y) {
+                textForError.y -= 40;
+                FlxTween.tween(textForError, {y: textForError.y + 40, alpha: 1}, 0.5, {ease: FlxEase.circInOut});
+            }
+        }});
+        discImage.setGraphicSize(Std.int(FlxG.height / 1.8));
+        discImage.updateHitbox();
+        discImage.screenCenter(Y);
     }
     var defaultDiscY:Float = 0;
     function showDisc(image:String, firstTime:Bool = false) {
+        FlxTween.tween(discImage, {alpha: 1}, 0.5, {ease: FlxEase.circInOut});
         var toLoad = Paths.image('diskmenu/$image', 'preload');
         if (discImage.graphic != toLoad) {
             angleForDisc = 360 * 20;
