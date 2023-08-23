@@ -76,7 +76,7 @@ class MainMenuState extends MusicBeatState
 			switch (curSelected)
 			{
 				case 'disc':
-					MusicBeatState.switchState(new DiskWeekTest());
+					MusicBeatState.switchState(new StoryDisk());
 				case 'mii':
 					MusicBeatState.switchState(new FreeplayState());
 				case 'gallery':
