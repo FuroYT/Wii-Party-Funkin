@@ -77,7 +77,7 @@ class StoryDisk extends MusicBeatState {
                 showDisc("Disc_Unknown", firstTime);
             }
         } catch(error:Dynamic){
-            showTextAlongDisk('An Error Occured While Checking For Disc\nError: "$error"');
+            showErrorText('An Error Occured While Checking For Disc\nError: "$error"');
         }
     }
     function showTextAlongDisk(text:String) {
