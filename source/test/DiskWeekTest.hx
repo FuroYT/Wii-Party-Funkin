@@ -1,3 +1,5 @@
+package test;
+
 import sys.FileSystem;
 import flixel.text.FlxText;
 using StringTools;

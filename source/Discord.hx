@@ -17,7 +17,7 @@ class DiscordClient
 	{
 		trace("Discord Client starting...");
 		DiscordRpc.start({
-			clientID: "863222024192262205",
+			clientID: "1144239492140646542",
 			onReady: onReady,
 			onError: onError,
 			onDisconnected: onDisconnected
@@ -87,6 +87,18 @@ class DiscordClient
 			// Obtained times are in milliseconds so they are divided so Discord can use it
 			startTimestamp : Std.int(startTimestamp / 1000),
             endTimestamp : Std.int(endTimestamp / 1000)
+		});
+
+		//trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp');
+	}
+
+	public static function iconTest(icon:String)
+	{
+		DiscordRpc.presence({
+			details: 'Icon Test',
+			state: "Testing RPC Icons",
+			largeImageKey: icon,
+			largeImageText: "Engine Version: " + MainMenuState.psychEngineVersion
 		});
 
 		//trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp');

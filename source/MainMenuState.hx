@@ -308,6 +308,7 @@ class MainMenuState extends MusicBeatState
 	var coolSwag:Int = 0;
 	override function update(elapsed:Float)
 	{
+		if (FlxG.keys.justPressed.C) MusicBeatState.switchState(new test.DiscordRPCIconTest());
 		if (FlxG.sound.music.volume < 0.8)
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
