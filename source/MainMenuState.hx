@@ -22,6 +22,7 @@ using StringTools;
 class MainMenuState extends MusicBeatState
 {
 	public static var psychEngineVersion:String = '0.6.2'; //This is also used for Discord RPC
+	public static var modVersion:String = "3.0.0";
 	public static var curSelected:String = "nuh uh";
 	public static var curSelected2:Int;
 	static var homebrewIntroSound:FlxSoundAsset = Paths.music('homebrew/intro');
@@ -36,14 +37,17 @@ class MainMenuState extends MusicBeatState
 	var menuItems:FlxTypedGroup<FlxSprite>;
 	private var camGame:FlxCamera;
 	private var camAchievement:FlxCamera;
-	
-	var optionShit:Array<String> = [
-		'story_mode',
-		'freeplay',
-		#if ACHIEVEMENTS_ALLOWED 'awards', #end
-		'credits',
-		#if !switch 'donate', #end
-		'options'
+
+	var menuItemsToAddBitch:Array<Dynamic> = [
+		[140, 30, 'disc'],
+		[475, 30, 'freeplay'],
+		[FlxG.width - 475, 30, 'gallery'],
+		[140, 270, 'credits'],
+		[475, 270, 'shop'],
+		[FlxG.width - 475, 270, 'news'],
+		[FlxG.width - 345, FlxG.height - 175, 'options'],
+		[FlxG.width - 475, FlxG.height - 175, 'homebrew'],
+		[FlxG.width - 200, FlxG.height - 180, 'discord']
 	];
 
 	var debugKeys:Array<FlxKey>;
@@ -56,16 +60,11 @@ class MainMenuState extends MusicBeatState
 		FlxTween.tween(blackScreen, {alpha: 0.7}, 0.5, {ease: FlxEase.quadOut});
 	}
 	
-	function playLoop(loopSound)
-	{
-		FlxG.sound.playMusic(loopSound, 0.8);
-	}
-	
 	function playChannelMusic(introSound, loopSound)
 	{
 		FlxG.sound.music.fadeOut(0.7, 0, function(_){
 			FlxG.sound.playMusic(introSound, 0.5);
-			FlxG.sound.music.onComplete = function () {playLoop(loopSound);};
+			FlxG.sound.music.onComplete = function () {FlxG.sound.playMusic(loopSound, 0.8);};
 		});
 	}
 	
@@ -147,15 +146,7 @@ class MainMenuState extends MusicBeatState
 
 		persistentUpdate = persistentDraw = true;
 
-		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menu'));
-		bg.scrollFactor.set(0, 0);
-		bg.updateHitbox();
-		bg.setGraphicSize(FlxG.width, FlxG.height);
-		bg.screenCenter();
-		bg.antialiasing = ClientPrefs.globalAntialiasing;
-		add(bg);
-
-		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('toolbar'));
+		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('mainmenu/bg'));
 		bg.scrollFactor.set(0, 0);
 		bg.updateHitbox();
 		bg.setGraphicSize(FlxG.width, FlxG.height);
@@ -165,6 +156,10 @@ class MainMenuState extends MusicBeatState
 
 		FlxG.mouse.visible = true;
 
+		var versionShit:FlxText = new FlxText(12, FlxG.height - 64, 0, "Wii Party Funkin' v" + modVersion, 12);
+		versionShit.scrollFactor.set();
+		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(versionShit);
 		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0, "Psych Engine v" + psychEngineVersion, 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -188,6 +183,13 @@ class MainMenuState extends MusicBeatState
 			}
 		}
 		#end*/
+
+		for (item in 0...menuItemsToAddBitch.length) {
+			var sprite = new FlxSprite(menuItemsToAddBitch[item][0], menuItemsToAddBitch[item][1]).loadGraphic(Paths.image('mainmenu/${menuItemsToAddBitch[item][2]}'));
+			add(sprite);
+			sprite.ID = item;
+			menuItemsToAddBitch[item].push(sprite);
+		}
 
 		blackScreen = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		blackScreen.alpha = 0;
@@ -244,7 +246,7 @@ class MainMenuState extends MusicBeatState
 			case 6:
 				selectMenu('options', null, null);
 			case 7:
-				selectMenu('homebrew', null, null);
+				selectMenu('homebrew', homebrewIntroSound, homebrewLoopSound);
 			case 8:
 				selectMenu('discord', null, null);
 			default:
@@ -261,49 +263,23 @@ class MainMenuState extends MusicBeatState
 
 	}
 
-	function mouseShit(mouseX:Float, mouseY:Float)
+	function mouseShit()
 	{
 		var things = ['disc', 'mii', 'gallery', 'credits', 'shop', 'news', 'options', 'homebrew', 'discord'];
-		FlxG.watch.addQuick('MouseX', mouseX);
-		FlxG.watch.addQuick('MouseY', mouseY);
 		var coolSwag = things[curSelected2];
 		if (curSelected2 == -1) coolSwag = "None";
 		FlxG.watch.addQuick('curSelected', curSelected);
 		FlxG.watch.addQuick('curSelected2String', coolSwag);
 		FlxG.watch.addQuick('curSelected2', curSelected2);
-		if ((mouseX >= 145 && mouseX <= 455) && (mouseY >= 65 && mouseY <= 260))
-		{
-			curSelected2 = 0;
-			return;
-		} else if ((mouseX >= 485 && mouseX <= 790) && (mouseY >= 65 && mouseY <= 260))
-		{
-			curSelected2 = 1;
-			return;
-		} else if ((mouseX >= 815 && mouseX <= 1125) && (mouseY >= 65 && mouseY <= 260))
-		{
-			curSelected2 = 2;
-			return;
+		for (item in 0...menuItemsToAddBitch.length) {
+			var spr = menuItemsToAddBitch[item][3];
+			if (FlxG.mouse.overlaps(spr))
+			{
+				curSelected2 = spr.ID;
+				return true;
+			}
 		}
-		else if ((mouseX >= 145 && mouseX <= 455) && (mouseY >= 300 && mouseY <= 495))
-		{
-			curSelected2 = 3;
-			return;
-		} else if ((mouseX >= 485 && mouseX <= 790) && (mouseY >= 300 && mouseY <= 495))
-		{
-			curSelected2 = 4;
-			return;
-		} else if ((mouseX >= 815 && mouseX <= 1125) && (mouseY >= 300 && mouseY <= 495))
-		{
-			curSelected2 = 5;
-			return;
-		} else if ((mouseX >= 1085 && mouseX <= 1225) && (mouseY >= 570 && mouseY <= 705))
-		{
-			curSelected2 = 8;
-			return;
-		} else {
-			curSelected2 = -1;
-			return;
-		}
+		return false;
 	}
 	var coolSwag:Int = 0;
 	override function update(elapsed:Float)
@@ -315,7 +291,7 @@ class MainMenuState extends MusicBeatState
 			if(FreeplayState.vocals != null) FreeplayState.vocals.volume += 0.5 * elapsed;
 		}
     	if (((FlxG.mouse.justPressed || wiimoteReadout.buttons.a) && (!inChannelMode && (!FlxG.mouse.overlaps(launchButton) && !FlxG.mouse.overlaps(backButton)))) && curSelected2 != -1) select();
-		mouseShit(FlxG.mouse.getScreenPosition().x, FlxG.mouse.getScreenPosition().y);
+		if (!mouseShit()) curSelected2 = -1;
 		FlxG.watch.addQuick('inChannelMode', (inChannelMode ? 'yes' : 'no'));
 		if (FlxG.keys.justPressed.P) {
 			coolSwag++;

@@ -1340,6 +1340,8 @@ class PlayState extends MusicBeatState
 
 		super.create();
 
+		PlayStateHUDS.Huds.applyHUD(this, currentHUD);
+
 		Paths.clearUnusedMemory();
 
 		for (key => type in precacheList)

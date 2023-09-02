@@ -5,22 +5,30 @@ import flixel.tweens.FlxTween;
 import flixel.text.FlxText;
 import flixel.FlxSprite;
 import sys.FileSystem;
+import flixel.util.FlxColor;
 using StringTools;
 class StoryDisk extends MusicBeatState {
+    var bg:FlxSprite;
     var discImage:FlxSprite;
     var textForDisc:FlxText;
     var textForError:FlxText;
     override public function create() {
+        bg = new FlxSprite(0, 0).loadGraphic(Paths.image("diskmenu/bg", "preload"));
+        bg.setGraphicSize(FlxG.width, FlxG.height);
+		bg.updateHitbox();
+		add(bg);
         discImage = new FlxSprite(FlxG.width / 2 + 50);
         add(discImage);
         textForDisc = new FlxText(50, 0, FlxG.width / 2 - 50, "", 26, true);
         add(textForDisc);
         textForDisc.alignment = CENTER;
         textForDisc.screenCenter(Y);
+        textForDisc.setFormat(null, textForDisc.size, FlxColor.BLACK);
         textForError = new FlxText(0, 0, FlxG.width, "", 26, true);
         add(textForError);
         textForError.alignment = CENTER;
         textForError.screenCenter(Y);
+        textForError.setFormat(null, textForError.size, FlxColor.BLACK);
         reloadDisk(true);
         super.create();
     }
@@ -70,7 +78,7 @@ class StoryDisk extends MusicBeatState {
                 }
             } else if ((folder.length == 1 && folder.contains('readme.txt')) || (folder.length == 0 && !folder.contains('readme.txt')))
             {
-                showTextAlongDisk('Insert a disk from "assets/cds" to "cdreader/"\nTo load a week');
+                showTextAlongDisk('Insert a disk from "assets/cds" to "cdreader/"\nTo load a week\n\n\n\nBeta Note: Keep in mind that this menu is still in progress and not fully functional yet');
                 showDisc("Disc_Unknown", firstTime);
             } else {
                 showTextAlongDisk("Disk overload\nOnly one disk can be inside the reader");
@@ -81,6 +89,7 @@ class StoryDisk extends MusicBeatState {
         }
     }
     function showTextAlongDisk(text:String) {
+        FlxTween.tween(discImage, {alpha: 1}, 0.5, {ease: FlxEase.circInOut});
         FlxTween.tween(textForError, {y: textForError.y - 40, alpha: 0}, 0.5, {ease: FlxEase.circInOut});
         if (text != textForDisc.text) {
             var daVal = 50;

@@ -17,7 +17,8 @@ class TitleState extends MusicBeatState
 	public static var volumeDownKeys:Array<FlxKey> = [FlxKey.NUMPADMINUS, FlxKey.MINUS];
 	public static var volumeUpKeys:Array<FlxKey> = [FlxKey.NUMPADPLUS, FlxKey.PLUS];
 	var canPressA:Bool = false;
-	var group:FlxTypedGroup<FlxSprite>;
+	var bg:FlxSprite;
+	var press:FlxSprite;
 	override public function create():Void
 	{
 		Paths.clearStoredMemory();
@@ -51,8 +52,16 @@ class TitleState extends MusicBeatState
 		}
 		#end
 
-		group = new FlxTypedGroup<FlxSprite>();
-		add(group);
+		bg = new FlxSprite(0, 0).loadGraphic(Paths.image("title/bg", "preload"));
+		bg.setGraphicSize(FlxG.width, FlxG.height);
+		bg.updateHitbox();
+		add(bg);
+
+		press = new FlxSprite(0, 0).loadGraphic(Paths.image("title/press", "preload"));
+		press.setGraphicSize(FlxG.width, FlxG.height);
+		press.updateHitbox();
+		press.alpha = 0;
+		add(press);
 
 		new FlxTimer().start(1, function(tmr:FlxTimer)
 		{
@@ -62,16 +71,11 @@ class TitleState extends MusicBeatState
 
 	function startGame()
 	{
-		group.forEachAlive(function(spr:FlxSprite)
-		{
-			FlxTween.tween(spr, {alpha: 1}, 2, {ease: FlxEase.cubeIn});
-		}, true);
 		new FlxTimer().start(2, function(_) {
-			var text = new flixel.addons.ui.FlxUIText(60, 235, FlxG.width, "Press enter to go to main menu", 24);
-			text.autoSize = false;
-			text.alignment = CENTER;
-			add(text);
-			canPressA = true;
+			FlxTween.tween(press, {alpha: 1}, 1, {type: PINGPONG});
+			new FlxTimer().start(1, function(_) {
+				canPressA = true;
+			});
 		});
 	}
 
@@ -89,14 +93,18 @@ class TitleState extends MusicBeatState
 		if(pressedAonWiimote && canPressA)
 		{
 			canPressA = false;
-			new FlxTimer().start(1, function(tmr:FlxTimer)
-			{
-				@:privateAccess
-				MainMenuState.preloadChannelsMusic();
-				MusicBeatState.switchState(new MainMenuState());
-				@:privateAccess
-				FlxG.sound.playMusic(MainMenuState.wiiMainMenuMusic, 0, true);
-			});
+			FlxTween.globalManager.cancelTweensOf(press);
+			FlxTween.tween(press, {alpha: 1}, 0.1, {ease: FlxEase.expoOut, onComplete: function(_) {
+				new FlxTimer().start(1, function(tmr:FlxTimer)
+				{
+					@:privateAccess
+					MainMenuState.preloadChannelsMusic();
+					MusicBeatState.switchState(new MainMenuState());
+					@:privateAccess
+					FlxG.sound.playMusic(MainMenuState.wiiMainMenuMusic, 0, true);
+				});
+				FlxTween.tween(press, {alpha: 0, y: press.y + 50}, 0.9, {ease: FlxEase.expoOut});
+			}});
 		}
 		super.update(elapsed);
 	}
