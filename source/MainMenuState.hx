@@ -50,6 +50,18 @@ class MainMenuState extends MusicBeatState
 		[FlxG.width - 200, FlxG.height - 180, 'discord']
 	];
 
+	var redirections:Map<String, Dynamic> = [
+		'disc' => StoryDisk,
+		'mii' => FreeplayState,
+		'gallery' => null,
+		'credits' => CreditsState,
+		'shop' => null,
+		'news' => null,
+		'options' => options.OptionsState,
+		'homebrew' => null,
+		'discord' => 'https://discord.gg/xA2envhqWs'
+	];
+
 	var debugKeys:Array<FlxKey>;
 	
 	//for channel main UI & sound
@@ -72,29 +84,10 @@ class MainMenuState extends MusicBeatState
 	{
 		if (inChannelMode)
 		{
-			switch (curSelected)
-			{
-				case 'disc':
-					MusicBeatState.switchState(new StoryDisk());
-				case 'mii':
-					MusicBeatState.switchState(new FreeplayState());
-				case 'gallery':
-					//open the gallery menu
-				case 'credits':
-					MusicBeatState.switchState(new CreditsState());
-				case 'shop':
-					//open the goddamn shop
-				case 'news':
-					//ive come to make an announcement
-				case 'options':
-					LoadingState.loadAndSwitchState(new options.OptionsState());
-				case 'homebrew':
-					//yuh uh
-				case 'discord':
-					CoolUtil.browserLoad('https://discord.gg/xA2envhqWs');
-				default:
-					FlxG.resetState(); //when the option doesnt exist
-			}
+			if (curSelected == "discord")
+				CoolUtil.browserLoad(redirections.get("discord"));
+			else
+				MusicBeatState.switchState(Type.createInstance(redirections.get(curSelected), []));
 		}
 	}
 	

@@ -23,7 +23,7 @@ class Note extends FlxSprite
 
 	public var strumTime:Float = 0;
 	public var mustPress:Bool = false;
-	public var noteData:Int = 0;
+	public var noteData(default, set):Int = 0;
 	public var canBeHit:Bool = false;
 	public var tooLate:Bool = false;
 	public var wasGoodHit:Bool = false;
@@ -156,6 +156,44 @@ class Note extends FlxSprite
 		noteSplashSat = colorSwap.saturation;
 		noteSplashBrt = colorSwap.brightness;
 		return value;
+	}
+
+	function set_noteData(v:Int):Int {
+		noteData = v;
+		if(!isSustainNote) { //Doing this 'if' check to fix the warnings on Senpai songs
+			for (sustain in tail) {
+				sustain.noteData = v;
+				if (sustain.prevNote.isSustainNote) {
+
+				} else {
+					switch (sustain.noteData)
+					{
+						case 0:
+							sustain.animation.play('purpleholdend');
+						case 1:
+							sustain.animation.play('blueholdend');
+						case 2:
+							sustain.animation.play('greenholdend');
+						case 3:
+							sustain.animation.play('redholdend');
+					}
+				}
+			}
+			var animToPlay:String = '';
+			switch (noteData % 4)
+			{
+				case 0:
+					animToPlay = 'purple';
+				case 1:
+					animToPlay = 'blue';
+				case 2:
+					animToPlay = 'green';
+				case 3:
+					animToPlay = 'red';
+			}
+			animation.play(animToPlay + 'Scroll');
+		}
+		return v;
 	}
 
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?inEditor:Bool = false)

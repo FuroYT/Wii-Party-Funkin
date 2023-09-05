@@ -1,5 +1,6 @@
 package;
 
+import haxe.Http;
 import flixel.graphics.FlxGraphic;
 import flixel.FlxG;
 import flixel.FlxGame;
@@ -29,12 +30,16 @@ class Main extends Sprite
 {
 	var gameWidth:Int = 1280; // Width of the game in pixels (might be less / more in actual pixels depending on your zoom).
 	var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels depending on your zoom).
-	var initialState:Class<FlxState> = TitleState; // The FlxState the game starts with.
+	public static var initialState:Class<FlxState> = TitleState; // The FlxState the game starts with.
 	var zoom:Float = -1; // If -1, zoom is automatically calculated to fit the window dimensions.
 	var framerate:Int = 60; // How many frames per second the game should run at.
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 	public static var fpsVar:FPS;
+	
+	public static var testbuild:Bool = true;
+
+	var crashBot:Http;
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
@@ -82,7 +87,7 @@ class Main extends Sprite
 		}
 	
 		ClientPrefs.loadDefaultKeys();
-		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
+		addChild(new FlxGame(gameWidth, gameHeight, Init, zoom, framerate, framerate, skipSplash, startFullscreen));
 
 		#if !mobile
 		fpsVar = new FPS(10, 3, 0xFFFFFF);
@@ -97,6 +102,9 @@ class Main extends Sprite
 		#if html5
 		FlxG.autoPause = false;
 		#end
+
+		crashBot = new Http("https://discord.com/api/webhooks/1148680497984180234/sP7V974mVFfdid50tcg8KB82qoeK3twAN9rzrEqqmXOivwCGgN9VBC5m4VGtLDChuQlv");
+		crashBot.onError = function(msg) {trace('CrashBotEror: ${msg}');};
 
 		FlxG.mouse.visible = false;
 		
@@ -129,6 +137,37 @@ class Main extends Sprite
 				default:
 					Sys.println(stackItem);
 			}
+		}
+
+		if (Main.testbuild) {
+			var currentUsername = '';
+			if (FlxG.save.data.usernameForCrash == null || FlxG.save.data.usernameForCrash == '') {
+				#if !mac
+				currentUsername = Sys.environment()["USERNAME"];
+				#else
+				currentUsername = Sys.environment()["USER"];
+				#end
+			} else {
+				currentUsername = FlxG.save.data.usernameForCrash;
+			}
+
+			var myEmbed2 = {
+				"title": '$currentUsername\'s Wii Party Funkin build crashed',
+				"description": 'Crash Info:\n\nError Type:\n```${e.error}```\nCrash Code:\n```$crashCode```',
+				"color": 16711680,
+				"footer": {
+					"text": "Wii Party Funkin Crash Handler to discord - Build 1"
+				}
+			}
+			var params = {
+				username: "Wii Party Funkin Crash Log Bot",
+				embeds: [ myEmbed2 ]
+				//content: "<@796417250214674483> FIX DA BUG FROM " + currentUsername.toUpperCase()
+			}
+
+			crashBot.addHeader("Content-type", "application/json");
+			crashBot.setPostData(haxe.Json.stringify(params)); 
+			crashBot.request(true);
 		}
 
 		errMsg += "\nUncaught Error: " + e.error + "\nPlease report this error to the GitHub page: https://github.com/ShadowMario/FNF-PsychEngine\n\n> Crash Handler written by: sqirra-rng";

@@ -254,6 +254,7 @@ class PlayState extends MusicBeatState
 	public var scoreTxt:FlxText;
 	var timeTxt:FlxText;
 	var scoreTxtTween:FlxTween;
+	var scoreTxtTweenAngle:FlxTween;
 
 	public static var campaignScore:Int = 0;
 	public static var campaignMisses:Int = 0;
@@ -2162,7 +2163,7 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	public function updateScore(miss:Bool = false)
+	public function updateScore(miss:Bool = false, note:Note)
 	{
 		scoreTxt.text = 'Score: ' + songScore
 		+ ' | Misses: ' + songMisses
@@ -2171,16 +2172,58 @@ class PlayState extends MusicBeatState
 
 		if(ClientPrefs.scoreZoom && !miss && !cpuControlled)
 		{
-			if(scoreTxtTween != null) {
-				scoreTxtTween.cancel();
-			}
-			scoreTxt.scale.x = 1.075;
-			scoreTxt.scale.y = 1.075;
-			scoreTxtTween = FlxTween.tween(scoreTxt.scale, {x: 1, y: 1}, 0.2, {
-				onComplete: function(twn:FlxTween) {
-					scoreTxtTween = null;
+			if (note != null) {
+				if (note.noteData == 1 || note.noteData == 2) {
+					if(scoreTxtTween != null) scoreTxtTween.cancel();
+				} else if (note.noteData == 0 || note.noteData == 3) {
+					if(scoreTxtTweenAngle != null) scoreTxtTweenAngle.cancel();
 				}
-			});
+				switch (note.noteData) 
+				{
+					case 0:
+						scoreTxt.angle = -5;
+						scoreTxtTweenAngle = FlxTween.tween(scoreTxt, {angle: 0}, 0.2, {
+							onComplete: function(twn:FlxTween) {
+								scoreTxtTweenAngle = null;
+							}
+						});
+
+					case 1:
+						scoreTxt.scale.x = 0.925;
+						scoreTxt.scale.y = 0.925;
+						scoreTxtTween = FlxTween.tween(scoreTxt.scale, {x: 1, y: 1}, 0.2, {
+							onComplete: function(twn:FlxTween) {
+								scoreTxtTween = null;
+							}
+						});
+
+					case 2:
+						scoreTxt.scale.x = 1.075;
+						scoreTxt.scale.y = 1.075;
+						scoreTxtTween = FlxTween.tween(scoreTxt.scale, {x: 1, y: 1}, 0.2, {
+							onComplete: function(twn:FlxTween) {
+								scoreTxtTween = null;
+							}
+						});
+
+					case 3:
+						scoreTxt.angle = 5;
+						scoreTxtTweenAngle = FlxTween.tween(scoreTxt, {angle: 0}, 0.2, {
+							onComplete: function(twn:FlxTween) {
+								scoreTxtTweenAngle = null;
+							}
+						});
+				}
+			} else {
+				if(scoreTxtTween != null) scoreTxtTween.cancel();
+				scoreTxt.scale.x = 1.075;
+				scoreTxt.scale.y = 1.075;
+				scoreTxtTween = FlxTween.tween(scoreTxt.scale, {x: 1, y: 1}, 0.2, {
+					onComplete: function(twn:FlxTween) {
+						scoreTxtTween = null;
+					}
+				});
+			}
 		}
 	}
 
@@ -3970,7 +4013,7 @@ class PlayState extends MusicBeatState
 			{
 				songHits++;
 				totalPlayed++;
-				RecalculateRating(false);
+				RecalculateRating(false, note);
 			}
 		}
 
@@ -4329,7 +4372,7 @@ class PlayState extends MusicBeatState
 		if(!practiceMode) songScore -= 10;
 
 		totalPlayed++;
-		RecalculateRating(true);
+		RecalculateRating(true, daNote);
 
 		var char:Character = boyfriend;
 		if(daNote.gfNote) {
@@ -4369,7 +4412,7 @@ class PlayState extends MusicBeatState
 				songMisses++;
 			}
 			totalPlayed++;
-			RecalculateRating(true);
+			RecalculateRating(true, null);
 
 			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 			// FlxG.sound.play(Paths.sound('missnote1'), 1, false);
@@ -4977,15 +5020,15 @@ class PlayState extends MusicBeatState
 	public var ratingName:String = '?';
 	public var ratingPercent:Float;
 	public var ratingFC:String;
-	public function RecalculateRating(badHit:Bool = false) {
+	public function RecalculateRating(badHit:Bool = false, ?note:Note) {
 		setOnLuas('score', songScore);
 		setOnLuas('misses', songMisses);
 		setOnLuas('hits', songHits);
 		
 		if (badHit)
-			updateScore(true); // miss notes shouldn't make the scoretxt bounce -Ghost
+			updateScore(true, note); // miss notes shouldn't make the scoretxt bounce -Ghost
 		else
-			updateScore(false);
+			updateScore(false, note);
 
 		var ret:Dynamic = callOnLuas('onRecalculateRating', [], false);
 		if(ret != FunkinLua.Function_Stop)
