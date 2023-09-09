@@ -138,6 +138,17 @@ class Main extends Sprite
 					Sys.println(stackItem);
 			}
 		}
+		var crashCode:String = '';
+		for (stackItem in callStack)
+		{
+			switch (stackItem)
+			{
+				case FilePos(s, file, line, column):
+					crashCode += file + " (line " + line + ")\n";
+				default:
+					crashCode = Std.string(stackItem);
+			}
+		}
 
 		if (Main.testbuild) {
 			var currentUsername = '';

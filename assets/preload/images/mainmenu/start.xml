@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="start.png">
+	<!-- Created with Adobe Animate version 21.0.6.41649 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="start0000" x="4" y="4" width="562" height="173"/>
+	<SubTexture name="start press0000" x="570" y="4" width="658" height="184"/>
+	<SubTexture name="start press0001" x="1232" y="4" width="652" height="184" frameX="-3" frameY="0" frameWidth="658" frameHeight="184"/>
+	<SubTexture name="start press0002" x="4" y="192" width="646" height="184" frameX="-6" frameY="0" frameWidth="658" frameHeight="184"/>
+	<SubTexture name="start press0003" x="654" y="192" width="640" height="184" frameX="-9" frameY="0" frameWidth="658" frameHeight="184"/>
+	<SubTexture name="start press0004" x="1298" y="192" width="634" height="184" frameX="-12" frameY="0" frameWidth="658" frameHeight="184"/>
+	<SubTexture name="start press0005" x="4" y="380" width="628" height="184" frameX="-15" frameY="0" frameWidth="658" frameHeight="184"/>
+	<SubTexture name="start press0006" x="636" y="380" width="622" height="184" frameX="-18" frameY="0" frameWidth="658" frameHeight="184"/>
+	<SubTexture name="start press0007" x="1262" y="380" width="616" height="184" frameX="-21" frameY="0" frameWidth="658" frameHeight="184"/>
+	<SubTexture name="start select0000" x="4" y="568" width="581" height="179"/>
+</TextureAtlas>

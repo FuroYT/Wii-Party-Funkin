@@ -52,7 +52,7 @@ class FreeplayState extends MusicBeatState
 		[180, 350, 'rainbow-kart'],
 		[415, 350, 'unknown'],
 		[650, 350, 'new-super-funk'],
-		[885, 350, 'samurai-fight']
+		[885, 350, 'sakura-blossom']
 	];
 
 	override function create()
@@ -146,10 +146,7 @@ class FreeplayState extends MusicBeatState
 
 	function startSong(songName:String) {
 		persistentUpdate = false;
-		var songLowercase:String = Paths.formatToSongPath(songName);
-		var poop:String = Highscore.formatSong(songLowercase, 1);
-
-		PlayState.SONG = Song.loadFromJson(poop, songLowercase);
+		PlayState.SONG = Song.loadFromJson(songName, songName);
 		PlayState.isStoryMode = false;
 		PlayState.storyDifficulty = 1;
 		if (FlxG.keys.pressed.SHIFT){
@@ -165,6 +162,8 @@ class FreeplayState extends MusicBeatState
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
 		}
+
+		mouseShit();
 
 		PlayState.currentHUD = (FlxG.keys.pressed.C ? MARIO_KART : DEFAULT);
 

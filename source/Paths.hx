@@ -172,11 +172,10 @@ class Paths
 		return getPath('data/$key.xml', TEXT, library);
 	}
 
-	inline static public function json(key:String, ?library:String)
+	inline static public function json(key:String, ?library:String, ?folder:String = "data")
 	{
-		return getPath('data/$key.json', TEXT, library);
+		return getPath('$folder/$key.json', TEXT, library);
 	}
-
 	inline static public function shaderFragment(key:String, ?library:String)
 	{
 		return getPath('shaders/$key.frag', TEXT, library);
