@@ -36,6 +36,7 @@ class CreditsState extends MusicBeatState
 	var descBox:AttachedSprite;
 
 	var offsetThing:Float = -75;
+    var canPress:Bool = true;
 
 	override function create()
 	{
@@ -161,6 +162,10 @@ class CreditsState extends MusicBeatState
 		bg.color = getCurrentBGColor();
 		intendedColor = bg.color;
 		changeSelection();
+		FlxG.sound.music.fadeOut(0.3, 0, function(_){
+            FlxG.sound.playMusic(Paths.music("channels/credits/bgm"), 0.8);
+			FlxG.sound.music.onComplete = function () {FlxG.sound.playMusic(Paths.music("channels/credits/bgm"), 0.8);};
+        });
 		super.create();
 	}
 
@@ -183,18 +188,18 @@ class CreditsState extends MusicBeatState
 				var upP = controls.UI_UP_P;
 				var downP = controls.UI_DOWN_P;
 
-				if (upP)
+				if (upP && canPress)
 				{
 					changeSelection(-1 * shiftMult);
 					holdTime = 0;
 				}
-				if (downP)
+				if (downP && canPress)
 				{
 					changeSelection(1 * shiftMult);
 					holdTime = 0;
 				}
 
-				if(controls.UI_DOWN || controls.UI_UP)
+				if(canPress && (controls.UI_DOWN || controls.UI_UP))
 				{
 					var checkLastHold:Int = Math.floor((holdTime - 0.5) * 10);
 					holdTime += elapsed;
@@ -207,16 +212,23 @@ class CreditsState extends MusicBeatState
 				}
 			}
 
-			if(controls.ACCEPT && (creditsStuff[curSelected][3] == null || creditsStuff[curSelected][3].length > 4)) {
+			if(canPress && (controls.ACCEPT && (creditsStuff[curSelected][3] == null || creditsStuff[curSelected][3].length > 4))) {
 				CoolUtil.browserLoad(creditsStuff[curSelected][3]);
 			}
-			if (controls.BACK)
+			if (controls.BACK && canPress)
 			{
 				if(colorTween != null) {
 					colorTween.cancel();
 				}
 				FlxG.sound.play(Paths.sound('cancelMenu'));
-				MusicBeatState.switchState(new MainMenuState());
+				canPress = false;
+                FlxG.sound.music.fadeOut(0.3, 0, function(_){
+                    @:privateAccess
+                    FlxG.sound.playMusic(MainMenuState.wiiMainMenuMusic, 0);
+                    MusicBeatState.switchState(new MainMenuState());
+                    @:privateAccess
+			        FlxG.sound.music.onComplete = function () {FlxG.sound.playMusic(MainMenuState.wiiMainMenuMusic, 0.8);};
+                });
 				quitting = true;
 			}
 		}

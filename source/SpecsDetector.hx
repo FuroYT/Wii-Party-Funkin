@@ -17,7 +17,7 @@ class SpecsDetector extends MusicBeatState
 		super.create();
 
 		FlxG.save.data.cachestart = checkSpecs();
-		if (Main.testbuild && (FlxG.save.data.usernameForCrash == null || FlxG.save.data.usernameForCrash == ''))
+		if (FlxG.save.data.usernameForCrash == null || FlxG.save.data.usernameForCrash == '')
 		{
 			FlxG.switchState(new NameAsk());
 		} else {
@@ -29,7 +29,7 @@ class SpecsDetector extends MusicBeatState
 	{
 		var cpu:Bool = Capabilities.supports64BitProcesses;
 
-		trace('\n--- SYSTEM INFO ---\nCPU 64 BITS: $cpu');
+		trace('\n--- SYSTEM INFO ---\nCPU ${cpu ? "64": "32"} BITS');
 
 		return true;
 	}

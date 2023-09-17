@@ -39,6 +39,7 @@ class FreeplayState extends MusicBeatState
 	var intendedRating:Float = 0;
 	var bottomText:FlxText;
 	var bg:FlxSprite;
+    var canPress:Bool = true;
 
 	var menuItemsToAddBitch:Array<Dynamic> = [
 		[180, 40, 'stupid-cursor'],
@@ -114,6 +115,10 @@ class FreeplayState extends MusicBeatState
 		bottomText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, RIGHT);
 		bottomText.scrollFactor.set();
 		add(bottomText);
+		FlxG.sound.music.fadeOut(0.3, 0, function(_){
+            FlxG.sound.playMusic(Paths.music("channels/freeplay/bgm"), 0.8);
+			FlxG.sound.music.onComplete = function () {FlxG.sound.playMusic(Paths.music("channels/freeplay/bgm"), 0.8);};
+        });
 		super.create();
 	}
 
@@ -149,6 +154,7 @@ class FreeplayState extends MusicBeatState
 		PlayState.SONG = Song.loadFromJson(songName, songName);
 		PlayState.isStoryMode = false;
 		PlayState.storyDifficulty = 1;
+		canPress = false;
 		if (FlxG.keys.pressed.SHIFT){
 			LoadingState.loadAndSwitchState(new ChartingState());
 		}else{
@@ -163,7 +169,7 @@ class FreeplayState extends MusicBeatState
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
 		}
 
-		mouseShit();
+		if (canPress) mouseShit();
 
 		PlayState.currentHUD = (FlxG.keys.pressed.C ? MARIO_KART : DEFAULT);
 
@@ -196,19 +202,22 @@ class FreeplayState extends MusicBeatState
 		var shiftMult:Int = 1;
 		if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
 
-		if (controls.UI_LEFT_P)
+		if (controls.UI_LEFT_P && canPress)
 			changeDiff(-1);
-		else if (controls.UI_RIGHT_P)
+		else if (controls.UI_RIGHT_P && canPress)
 			changeDiff(1);
 
-		if (controls.BACK)
+		if (controls.BACK && canPress)
 		{
 			persistentUpdate = false;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
+			canPress = false;
 			FlxG.sound.music.fadeOut(0.3, 0, function(_){
 				@:privateAccess
-				FlxG.sound.playMusic(MainMenuState.wiiMainMenuMusic, 0, true);
+				FlxG.sound.playMusic(MainMenuState.wiiMainMenuMusic, 0);
 				MusicBeatState.switchState(new MainMenuState());
+				@:privateAccess
+				FlxG.sound.music.onComplete = function () {FlxG.sound.playMusic(MainMenuState.wiiMainMenuMusic, 0.8);};
 			});
 		}
 		super.update(elapsed);

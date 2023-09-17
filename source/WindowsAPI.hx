@@ -28,8 +28,8 @@ class WindowsAPI {
         UpdateWindow(window);
     ')
     #end
-    public static function setWindowDarkModeValue(darkMode:Bool) {
-        trace('window is now ' + (darkMode ? 'dark' : 'light'));
+    public static function setWindowDarkModeValue(enable:Bool) {
+        trace('window is now ' + (enable ? 'dark' : 'light'));
     }
 
     #if windows

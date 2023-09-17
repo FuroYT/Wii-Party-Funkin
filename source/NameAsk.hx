@@ -24,7 +24,7 @@ class NameAsk extends MusicBeatState {
         });
         add(doneButton);
         doneButton.screenCenter(X);
-        text = new FlxText(0, 0, FlxG.width, 'What is your username?\nPlease put a real username its for the crash handler and its definitive', 32);
+        text = new FlxText(0, 0, FlxG.width, 'What is your username?', 32);
         text.alignment = CENTER;
         text.bold = true;
         add(text);

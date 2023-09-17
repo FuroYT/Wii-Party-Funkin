@@ -1,3 +1,4 @@
+import flixel.util.FlxTimer;
 import flixel.system.FlxSound;
 import lime.app.Application;
 import flixel.tweens.FlxEase;
@@ -26,21 +27,16 @@ class MainMenuState extends MusicBeatState
 	public static var curSelected:String = "nuh uh";
 	public static var curSelected2:Int;
 	static var discIntroSound:FlxSoundAsset =     Paths.music('channels/disc/intro');
-	static var discLoopSound:FlxSoundAsset =      Paths.music('channels/disc/loop');
 	static var freeplayIntroSound:FlxSoundAsset = Paths.music('channels/freeplay/intro');
 	static var freeplayLoopSound:FlxSoundAsset =  Paths.music('channels/freeplay/loop');
 	static var galleryIntroSound:FlxSoundAsset =  Paths.music('channels/gallery/intro');
-	static var galleryLoopSound:FlxSoundAsset =   Paths.music('channels/gallery/loop');
 	static var creditsIntroSound:FlxSoundAsset =  Paths.music('channels/credits/intro');
-	static var creditsLoopSound:FlxSoundAsset =   Paths.music('channels/credits/loop');
 	static var shopIntroSound:FlxSoundAsset =     Paths.music('channels/shop/intro');
 	static var shopLoopSound:FlxSoundAsset =      Paths.music('channels/shop/loop');
 	static var newsIntroSound:FlxSoundAsset =     Paths.music('channels/news/intro');
-	static var newsLoopSound:FlxSoundAsset =      Paths.music('channels/news/loop');
 	static var optionsIntroSound:FlxSoundAsset =  Paths.music('channels/options/intro');
 	static var optionsLoopSound:FlxSoundAsset =   Paths.music('channels/options/loop');
 	static var discordIntroSound:FlxSoundAsset =  Paths.music('channels/discord/intro');
-	static var discordLoopSound:FlxSoundAsset =   Paths.music('channels/discord/loop');
 	static var homebrewIntroSound:FlxSoundAsset = Paths.music('channels/homebrew/intro');
 	static var homebrewLoopSound:FlxSoundAsset =  Paths.music('channels/homebrew/loop');
 	static var wiiMainMenuMusic:FlxSoundAsset =   Paths.music('freakyMenu');
@@ -54,6 +50,8 @@ class MainMenuState extends MusicBeatState
 	var menuItems:FlxTypedGroup<FlxSprite>;
 	private var camGame:FlxCamera;
 	private var camAchievement:FlxCamera;
+
+	var timeTxt:FlxText;
 
 	var menuItemsToAddBitch:Array<Dynamic> = [
 		[140, 30, 'disc'],
@@ -75,7 +73,7 @@ class MainMenuState extends MusicBeatState
 		'shop' => ShopState,
 		'news' => null,
 		'options' => options.OptionsState,
-		'homebrew' => null,
+		'homebrew' => HomebrewMenu,
 		'discord' => 'https://discord.gg/xA2envhqWs'
 	];
 
@@ -91,8 +89,9 @@ class MainMenuState extends MusicBeatState
 	
 	function playChannelMusic(introSound, loopSound)
 	{
+		if (loopSound == null) loopSound = wiiMainMenuMusic;
 		FlxG.sound.music.fadeOut(0.7, 0, function(_){
-			FlxG.sound.playMusic(introSound, 0.5);
+			FlxG.sound.playMusic(introSound, 0);
 			FlxG.sound.music.onComplete = function () {FlxG.sound.playMusic(loopSound, 0.8);};
 		});
 	}
@@ -121,9 +120,12 @@ class MainMenuState extends MusicBeatState
 			FlxTween.tween(launchButtonSprite, {alpha: 0}, 0.5, {ease: FlxEase.quadOut});
 			FlxTween.tween(backButtonSprite, {alpha: 0}, 0.5, {ease: FlxEase.quadOut});
 			FlxTween.tween(blackScreen, {alpha: 0}, 0.5, {ease: FlxEase.quadOut, onComplete: function(_){canSelect = true;}});
-			FlxG.sound.music.fadeOut(0.7, 0, function(_){
-				FlxG.sound.playMusic(wiiMainMenuMusic, 0.5);
-			});
+			@:privateAccess
+			if (FlxG.sound.music._sound != wiiMainMenuMusic) {
+				FlxG.sound.music.fadeOut(0.7, 0, function(_){
+					FlxG.sound.playMusic(wiiMainMenuMusic, 0.5);
+				});
+			}
 			inChannelMode = false;
 			curSelected = "nuh uh";
 		}
@@ -131,25 +133,24 @@ class MainMenuState extends MusicBeatState
 
 	static function preloadChannelsMusic()
 	{
-		new FlxSound().loadEmbedded(discIntroSound);
-		new FlxSound().loadEmbedded(discLoopSound);
-		new FlxSound().loadEmbedded(freeplayIntroSound);
-		new FlxSound().loadEmbedded(freeplayLoopSound);
-		new FlxSound().loadEmbedded(galleryIntroSound);
-		new FlxSound().loadEmbedded(galleryLoopSound);
-		new FlxSound().loadEmbedded(creditsIntroSound);
-		new FlxSound().loadEmbedded(creditsLoopSound);
-		new FlxSound().loadEmbedded(shopIntroSound);
-		new FlxSound().loadEmbedded(shopLoopSound);
-		new FlxSound().loadEmbedded(newsIntroSound);
-		new FlxSound().loadEmbedded(newsLoopSound);
-		new FlxSound().loadEmbedded(optionsIntroSound);
-		new FlxSound().loadEmbedded(optionsLoopSound);
-		new FlxSound().loadEmbedded(discordIntroSound);
-		new FlxSound().loadEmbedded(discordLoopSound);
-		new FlxSound().loadEmbedded(homebrewIntroSound);
-		new FlxSound().loadEmbedded(homebrewLoopSound);
-		new FlxSound().loadEmbedded(wiiMainMenuMusic);
+		var thePreloaderSound:FlxSound;
+		thePreloaderSound = new FlxSound();
+		thePreloaderSound.loadEmbedded(discIntroSound);
+		thePreloaderSound.loadEmbedded(freeplayIntroSound);
+		thePreloaderSound.loadEmbedded(freeplayLoopSound);
+		thePreloaderSound.loadEmbedded(galleryIntroSound);
+		thePreloaderSound.loadEmbedded(creditsIntroSound);
+		thePreloaderSound.loadEmbedded(shopIntroSound);
+		thePreloaderSound.loadEmbedded(shopLoopSound);
+		thePreloaderSound.loadEmbedded(newsIntroSound);
+		thePreloaderSound.loadEmbedded(optionsIntroSound);
+		thePreloaderSound.loadEmbedded(optionsLoopSound);
+		thePreloaderSound.loadEmbedded(discordIntroSound);
+		thePreloaderSound.loadEmbedded(homebrewIntroSound);
+		thePreloaderSound.loadEmbedded(homebrewLoopSound);
+		thePreloaderSound.loadEmbedded(wiiMainMenuMusic);
+		thePreloaderSound.destroy();
+		thePreloaderSound = null;
 	}
 
 	override function create()
@@ -187,6 +188,12 @@ class MainMenuState extends MusicBeatState
 		add(bg);
 
 		FlxG.mouse.visible = true;
+
+		var timePos = [550, FlxG.height - 80];
+		timeTxt = new FlxText(timePos[0], timePos[1], 500, "", 48, true);
+		timeTxt.color = FlxColor.BLACK;
+		timeTxt.font = Paths.font("Delfino.ttf");
+		add(timeTxt);
 
 		var versionShit:FlxText = new FlxText(12, FlxG.height - 64, 0, "Wii Party Funkin' v" + modVersion, 12);
 		versionShit.scrollFactor.set();
@@ -290,6 +297,11 @@ class MainMenuState extends MusicBeatState
 			};
 		}
 
+		new FlxTimer().start(1, function(timer:FlxTimer){
+			beatShit++;
+			theColon = beatShit % 2 == 1 ? ":" : " ";
+		}, Std.int(Math.POSITIVE_INFINITY));
+
 		super.create();
 	}
 
@@ -306,23 +318,23 @@ class MainMenuState extends MusicBeatState
 		switch(curSelected2)
 		{
 			case 0:
-				selectMenu('disc', discIntroSound, discLoopSound);
+				selectMenu('disc', discIntroSound, null);
 			case 1:
 				selectMenu('mii', freeplayIntroSound, freeplayLoopSound);
 			case 2:
-				selectMenu('gallery', galleryIntroSound, galleryLoopSound);
+				selectMenu('gallery', galleryIntroSound, null);
 			case 3:
-				selectMenu('credits', creditsIntroSound, creditsLoopSound);
+				selectMenu('credits', creditsIntroSound, null);
 			case 4:
 				selectMenu('shop', shopIntroSound, shopLoopSound);
 			case 5:
-				selectMenu('news', newsIntroSound, newsLoopSound);
+				selectMenu('news', newsIntroSound, null);
 			case 6:
 				selectMenu('options', optionsIntroSound, optionsLoopSound);
 			case 7:
 				selectMenu('homebrew', homebrewIntroSound, homebrewLoopSound);
 			case 8:
-				selectMenu('discord', discordIntroSound, discordLoopSound);
+				selectMenu('discord', discordIntroSound, null);
 			default:
 				FlxG.resetState(); //when the option doesnt exist
 		}
@@ -356,8 +368,19 @@ class MainMenuState extends MusicBeatState
 		return false;
 	}
 	var coolSwag:Int = 0;
+	var beatShit:Int = 0;
+	var theColon:String = " ";
+	function formatDate(date:Int)
+	{
+		if (Std.string(date).length == 1)
+			return "0" + Std.string(date);
+		else
+			return Std.string(date);
+	}
 	override function update(elapsed:Float)
 	{
+		var date = Date.now();
+		timeTxt.text = '${formatDate(date.getHours())}${theColon}${formatDate(date.getMinutes());}';
 		if (FlxG.keys.anyJustPressed(debugKeys)) MusicBeatState.switchState(new editors.MasterEditorMenu());
 		if (FlxG.keys.justPressed.C) MusicBeatState.switchState(new test.DiscordRPCIconTest());
 		if (FlxG.sound.music.volume < 0.8)

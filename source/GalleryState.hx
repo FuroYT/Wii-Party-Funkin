@@ -27,6 +27,7 @@ class GalleryState extends MusicBeatState
 	var description:FlxText;
 	var arrowRight:FlxSprite;
 	var arrowLeft:FlxSprite;
+    var canPress:Bool = true;
 
 	override function create() {
 		#if desktop
@@ -98,23 +99,35 @@ class GalleryState extends MusicBeatState
 
 		changeSelection();
 
+		FlxG.sound.music.fadeOut(0.3, 0, function(_){
+            FlxG.sound.playMusic(Paths.music("channels/gallery/bgm"), 0.8);
+			FlxG.sound.music.onComplete = function () {FlxG.sound.playMusic(Paths.music("channels/gallery/bgm"), 0.8);};
+        });
+
 		super.create();
 	}
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		if (controls.UI_LEFT_P || (FlxG.mouse.overlaps(arrowLeft) && FlxG.mouse.justPressed)) {
+		if ((controls.UI_LEFT_P || (FlxG.mouse.overlaps(arrowLeft) && FlxG.mouse.justPressed)) && canPress) {
 			changeSelection(-1);
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 		}
-		if (controls.UI_RIGHT_P || (FlxG.mouse.overlaps(arrowRight) && FlxG.mouse.justPressed)) {
+		if ((controls.UI_RIGHT_P || (FlxG.mouse.overlaps(arrowRight) && FlxG.mouse.justPressed)) && canPress) {
 			changeSelection(1);
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 		}
 
-		if (controls.BACK) {
+		if ((controls.BACK) && canPress) {
 			FlxG.sound.play(Paths.sound('cancelMenu'));
-			MusicBeatState.switchState(new MainMenuState());
+			canPress = false;
+            FlxG.sound.music.fadeOut(0.3, 0, function(_){
+                @:privateAccess
+                FlxG.sound.playMusic(MainMenuState.wiiMainMenuMusic, 0);
+                MusicBeatState.switchState(new MainMenuState());
+                @:privateAccess
+			    FlxG.sound.music.onComplete = function () {FlxG.sound.playMusic(MainMenuState.wiiMainMenuMusic, 0.8);};
+            });
 		}
 	}
 

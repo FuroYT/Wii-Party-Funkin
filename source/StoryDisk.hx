@@ -12,6 +12,15 @@ class StoryDisk extends MusicBeatState {
     var discImage:FlxSprite;
     var textForDisc:FlxText;
     var textForError:FlxText;
+    var discValid:Bool = false;
+    var curWeek:Int = -1;
+    var redirections:Map<Int, Array<String>> = [
+        1 => ["stupid-cursor", "shop-tv"],
+        2 => ["nightanova", "perhaps", "zombie-tag"],
+        3 => ["strike", "final-match", "smash-battle"],
+        4 => ["new-super-funk", "sakura-blossom"],
+        5 => ["rainbow-kart", "unknown"]
+	];
     override public function create() {
         bg = new FlxSprite(0, 0).loadGraphic(Paths.image("diskmenu/bg", "preload"));
         bg.setGraphicSize(FlxG.width, FlxG.height);
@@ -52,40 +61,39 @@ class StoryDisk extends MusicBeatState {
                     }
                 }
 
-                if (FileSystem.exists('cdreader/week1.iso'))
-                {
-                    showTextAlongDisk("Week 1 Inserted");
-                    showDisc("Disc_1", firstTime);
-                } else if (FileSystem.exists('cdreader/week2.iso'))
-                {
-                    showTextAlongDisk("Week 2 Inserted");
-                    showDisc("Disc_2", firstTime);
-                } else if (FileSystem.exists('cdreader/week3.iso'))
-                {
-                    showTextAlongDisk("Week 3 Inserted");
-                    showDisc("Disc_3", firstTime);
-                } else if (FileSystem.exists('cdreader/week4.iso'))
-                {
-                    showTextAlongDisk("Week 4 Inserted");
-                    showDisc("Disc_4", firstTime);
-                } else if (FileSystem.exists('cdreader/week5.iso'))
-                {
-                    showTextAlongDisk("Week 5 Inserted");
-                    showDisc("Disc_5", firstTime);
-                } else {
+                for (i in 0...6) {
+                    if (FileSystem.exists('cdreader/week${i}.iso'))
+                    {
+                        showTextAlongDisk('Week ${i} Inserted!\n\nPress ENTER to play!');
+                        showDisc('Disc_${i}', firstTime);
+                        curWeek = i;
+                        discValid = true;
+                        break;
+                    } else {
+                        discValid = false;
+                    }
+                }
+                if (!discValid) {
                     showTextAlongDisk("Unknown Disk Inserted");
                     showDisc("Disc_Unknown", firstTime);
+                    curWeek = -1;
                 }
             } else if ((folder.length == 1 && folder.contains('readme.txt')) || (folder.length == 0 && !folder.contains('readme.txt')))
             {
-                showTextAlongDisk('Insert a disk from "assets/cds" to "cdreader/"\nTo load a week\n\n\n\nBeta Note: Keep in mind that this menu is still in progress and not fully functional yet');
+                showTextAlongDisk('Insert a disk from "assets/cds" to "cdreader/"\nTo load a week');
                 showDisc("Disc_Unknown", firstTime);
+                curWeek = -1;
+                discValid = false;
             } else {
                 showTextAlongDisk("Disk overload\nOnly one disk can be inside the reader");
                 showDisc("Disc_Unknown", firstTime);
+                curWeek = -1;
+                discValid = false;
             }
         } catch(error:Dynamic){
             showErrorText('An Error Occured While Checking For Disc\nError: "$error"');
+            curWeek = -1;
+            discValid = false;
         }
     }
     function showTextAlongDisk(text:String) {
@@ -147,10 +155,21 @@ class StoryDisk extends MusicBeatState {
         reloadDisk(false);
         super.onFocus();
     }
+    function selectWeek(weekNum:Int) {
+         trace('Selected Week $weekNum');
+        var songs = redirections.get(weekNum);
+        PlayState.storyPlaylist = songs;
+        PlayState.isStoryMode = true;
+        PlayState.storyWeek = weekNum;
+        PlayState.SONG = Song.loadFromJson(songs[0], songs[0]);
+		PlayState.storyDifficulty = 1;
+		LoadingState.loadAndSwitchState(new PlayState(), true);
+    }
     var angleForDisc:Float = 0;
     override function update(elapsed:Float) {
         discImage.angle = FlxMath.lerp(angleForDisc, discImage.angle, CoolUtil.boundTo(1 - (elapsed * 3.125), 0, 1));
         if (controls.BACK || wiimoteReadout.buttons.b) MusicBeatState.switchState(new MainMenuState());
+        if (FlxG.keys.justPressed.ENTER && curWeek != -1) selectWeek(curWeek);
         super.update(elapsed);
     }
 }
