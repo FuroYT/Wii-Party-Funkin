@@ -171,8 +171,6 @@ class FreeplayState extends MusicBeatState
 
 		if (canPress) mouseShit();
 
-		PlayState.currentHUD = (FlxG.keys.pressed.C ? MARIO_KART : DEFAULT);
-
 		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, CoolUtil.boundTo(elapsed * 24, 0, 1)));
 		lerpRating = FlxMath.lerp(lerpRating, intendedRating, CoolUtil.boundTo(elapsed * 12, 0, 1));
 

@@ -458,6 +458,18 @@ class Paths
 	static public function getGlobalMods()
 		return globalMods;
 
+	inline public static function getUsername() {
+		#if desktop
+		#if !mac
+		return Sys.environment()["USERNAME"];
+		#else
+		return Sys.environment()["USER"];
+		#end
+		#else
+		return "none";
+		#end
+	}
+
 	static public function pushGlobalMods() // prob a better way to do this but idc
 	{
 		globalMods = [];

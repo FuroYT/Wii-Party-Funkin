@@ -1,7 +1,5 @@
 package;
 
-import flixel.util.FlxGradient;
-import flixel.util.FlxTimer;
 import Controls.Control;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -24,16 +22,13 @@ class PauseSubState extends MusicBeatSubstate
 	var menuItems:Array<String> = [];
 	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Exit to menu'];
 	var curSelected:Int = 0;
+
 	var pauseMusic:FlxSound;
+	var practiceText:FlxText;
 	var skipTimeText:FlxText;
 	var skipTimeTracker:Alphabet;
 	var curTime:Float = Math.max(0, Conductor.songPosition);
-	var topBar:FlxSprite;
-	var topBarBorder:FlxSprite;
-	var botBar:FlxSprite;
-	var botBarBorder:FlxSprite;
-	var bg:FlxSprite;
-	var gradient:FlxSprite;
+	//var botplayText:FlxText;
 
 	public static var songName:String = '';
 
@@ -58,80 +53,78 @@ class PauseSubState extends MusicBeatSubstate
 		menuItems = menuItemsOG;
 
 		pauseMusic = new FlxSound();
-		/*if(songName != null) {
+		if(songName != null) {
 			pauseMusic.loadEmbedded(Paths.music(songName), true, true);
 		} else if (songName != 'None') {
 			pauseMusic.loadEmbedded(Paths.music(Paths.formatToSongPath(ClientPrefs.pauseMusic)), true, true);
-		}*/
+		}
 		pauseMusic.volume = 0;
 		pauseMusic.play(false, FlxG.random.int(0, Std.int(pauseMusic.length / 2)));
 
 		FlxG.sound.list.add(pauseMusic);
+
+		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+		bg.alpha = 0;
+		bg.scrollFactor.set();
+		add(bg);
+
+		var levelInfo:FlxText = new FlxText(20, 15, 0, "", 32);
+		levelInfo.text += PlayState.SONG.song;
+		levelInfo.scrollFactor.set();
+		levelInfo.setFormat(Paths.font("vcr.ttf"), 32);
+		levelInfo.updateHitbox();
+		add(levelInfo);
+
+		var blueballedTxt:FlxText = new FlxText(20, 15 + 32, 0, "", 32);
+		blueballedTxt.text = "Blueballed: " + PlayState.deathCounter;
+		blueballedTxt.scrollFactor.set();
+		blueballedTxt.setFormat(Paths.font('vcr.ttf'), 32);
+		blueballedTxt.updateHitbox();
+		add(blueballedTxt);
+
+		practiceText = new FlxText(20, 15 + 64, 0, "PRACTICE MODE", 32);
+		practiceText.scrollFactor.set();
+		practiceText.setFormat(Paths.font('vcr.ttf'), 32);
+		practiceText.x = FlxG.width - (practiceText.width + 20);
+		practiceText.updateHitbox();
+		practiceText.visible = PlayState.instance.practiceMode;
+		add(practiceText);
+
+		var chartingText:FlxText = new FlxText(20, 15 + 64, 0, "CHARTING MODE", 32);
+		chartingText.scrollFactor.set();
+		chartingText.setFormat(Paths.font('vcr.ttf'), 32);
+		chartingText.x = FlxG.width - (chartingText.width + 20);
+		chartingText.y = FlxG.height - (chartingText.height + 20);
+		chartingText.updateHitbox();
+		chartingText.visible = PlayState.chartingMode;
+		add(chartingText);
+
+		blueballedTxt.alpha = 0;
+		levelInfo.alpha = 0;
+		practiceText.alpha = 0;
+
+		levelInfo.x = FlxG.width - (levelInfo.width + 20);
+		blueballedTxt.x = FlxG.width - (blueballedTxt.width + 20);
+
+		FlxTween.tween(bg, {alpha: 0.6}, 0.4, {ease: FlxEase.quartInOut});
+		FlxTween.tween(levelInfo, {alpha: 1, y: 20}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.3});
+		FlxTween.tween(blueballedTxt, {alpha: 1, y: blueballedTxt.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
+		FlxTween.tween(practiceText, {alpha: 1, y: practiceText.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.7});
 
 		grpMenuShit = new FlxTypedGroup<Alphabet>();
 		add(grpMenuShit);
 
 		regenMenu();
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
-
-		bg = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
-		bg.screenCenter(XY);
-		add(bg);
-		bg.alpha = 0;
-
-		topBar = new FlxSprite(0, -210).makeGraphic(FlxG.width + 50, 120, FlxColor.BLACK);
-		topBar.screenCenter(X);
-		add(topBar);
-
-		gradient = FlxGradient.createGradientFlxSprite(Std.int(topBar.width), Std.int(topBar.height), [FlxColor.fromString("21cbff"), FlxColor.fromString('4287f5')], 5, 90);
-		add(gradient);
-		gradient.alpha = 0;
-
-		topBarBorder = new FlxSprite(topBar.x, topBar.y + topBar.height).makeGraphic(Std.int(topBar.width), 10, FlxColor.WHITE);
-		add(topBarBorder);
-
-		botBar = new FlxSprite(0, FlxG.height + 220).makeGraphic(FlxG.width + 50, 120, FlxColor.BLACK);
-		botBar.screenCenter(X);
-		add(botBar);
-
-		botBarBorder = new FlxSprite(topBar.x, botBar.y - topBarBorder.height).makeGraphic(Std.int(botBar.width), 10, FlxColor.WHITE);
-		add(botBarBorder);
-
-		FlxTween.cancelTweensOf(topBar);
-		FlxTween.cancelTweensOf(botBar);
-		FlxTween.cancelTweensOf(bg);
-		FlxTween.tween(topBar, {y: 0}, 0.5, {ease: FlxEase.linear});
-		FlxTween.tween(botBar, {y: FlxG.height - botBar.height}, 0.5, {ease: FlxEase.linear});
-		FlxTween.tween(bg, {alpha: 0.7}, 0.5, {ease: FlxEase.linear});
 	}
 
 	var holdTime:Float = 0;
 	var cantUnpause:Float = 0.1;
-
-	function daClose()
-	{
-		FlxTween.cancelTweensOf(topBar);
-		FlxTween.cancelTweensOf(botBar);
-		FlxTween.cancelTweensOf(bg);
-		gradient.alpha = 1;
-		FlxTween.tween(gradient, {alpha: 0}, 0.5, {ease: FlxEase.linear});
-		FlxTween.tween(topBar, {y: -(topBar.height + 20)}, 0.5, {ease: FlxEase.linear});
-		FlxTween.tween(botBar, {y: FlxG.height + 220}, 0.5, {ease: FlxEase.linear});
-		FlxTween.tween(bg, {alpha: 0}, 0.5, {ease: FlxEase.linear});
-		new FlxTimer().start(0.6, function(_){
-			close();
-		});
-	}
-
 	override function update(elapsed:Float)
 	{
 		cantUnpause -= elapsed;
 		if (pauseMusic.volume < 0.5)
 			pauseMusic.volume += 0.01 * elapsed;
-
-		if (botBarBorder != null && botBar != null) botBarBorder.y = botBar.y - topBarBorder.height;
-		if (topBarBorder != null && topBar != null) topBarBorder.y = topBar.y + topBar.height;
-		if (gradient != null && topBar != null) gradient.y = topBar.y;
 
 		super.update(elapsed);
 		updateSkipTextStuff();
@@ -185,10 +178,11 @@ class PauseSubState extends MusicBeatSubstate
 			switch (daSelected)
 			{
 				case "Resume":
-					daClose();
+					close();
 				case 'Toggle Practice Mode':
 					PlayState.instance.practiceMode = !PlayState.instance.practiceMode;
 					PlayState.changedDifficulty = true;
+					practiceText.visible = PlayState.instance.practiceMode;
 				case "Restart Song":
 					restartSong();
 				case "Leave Charting Mode":
@@ -207,10 +201,10 @@ class PauseSubState extends MusicBeatSubstate
 							PlayState.instance.clearNotesBefore(curTime);
 							PlayState.instance.setSongTime(curTime);
 						}
-						daClose();
+						close();
 					}
 				case "End Song":
-					daClose();
+					close();
 					PlayState.instance.finishSong(true);
 				case 'Toggle Botplay':
 					PlayState.instance.cpuControlled = !PlayState.instance.cpuControlled;
@@ -224,7 +218,7 @@ class PauseSubState extends MusicBeatSubstate
 
 					WeekData.loadTheFirstEnabledMod();
 					if(PlayState.isStoryMode) {
-						MusicBeatState.switchState(new StoryDisk());
+						MusicBeatState.switchState(new StoryMenuState());
 					} else {
 						MusicBeatState.switchState(new FreeplayState());
 					}

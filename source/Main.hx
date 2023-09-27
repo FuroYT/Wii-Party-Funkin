@@ -153,11 +153,7 @@ class Main extends Sprite
 		if (Main.testbuild) {
 			var currentUsername = '';
 			if (FlxG.save.data.usernameForCrash == null || FlxG.save.data.usernameForCrash == '') {
-				#if !mac
-				currentUsername = Sys.environment()["USERNAME"];
-				#else
-				currentUsername = Sys.environment()["USER"];
-				#end
+				currentUsername = Paths.getUsername();
 			} else {
 				currentUsername = FlxG.save.data.usernameForCrash;
 			}

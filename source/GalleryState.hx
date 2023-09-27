@@ -121,11 +121,9 @@ class GalleryState extends MusicBeatState
 		if ((controls.BACK) && canPress) {
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			canPress = false;
-            FlxG.sound.music.fadeOut(0.3, 0, function(_){
-                @:privateAccess
+            FlxG.sound.music.fadeOut(0.3, 0, function(_) @:privateAccess {
                 FlxG.sound.playMusic(MainMenuState.wiiMainMenuMusic, 0);
                 MusicBeatState.switchState(new MainMenuState());
-                @:privateAccess
 			    FlxG.sound.music.onComplete = function () {FlxG.sound.playMusic(MainMenuState.wiiMainMenuMusic, 0.8);};
             });
 		}

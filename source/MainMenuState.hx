@@ -1,3 +1,4 @@
+import flixel.FlxState;
 import flixel.util.FlxTimer;
 import flixel.system.FlxSound;
 import lime.app.Application;
@@ -87,7 +88,7 @@ class MainMenuState extends MusicBeatState
 		FlxTween.tween(blackScreen, {alpha: 0.7}, 0.5, {ease: FlxEase.quadOut});
 	}
 	
-	function playChannelMusic(introSound, loopSound)
+	function playChannelMusic(introSound:FlxSoundAsset, loopSound:FlxSoundAsset)
 	{
 		if (loopSound == null) loopSound = wiiMainMenuMusic;
 		FlxG.sound.music.fadeOut(0.7, 0, function(_){
@@ -101,9 +102,11 @@ class MainMenuState extends MusicBeatState
 		if (inChannelMode && canSelect)
 		{
 			canSelect = false;
-			if (curSelected == "discord")
-				CoolUtil.browserLoad(redirections.get("discord"));
-			else {
+			if (Std.isOfType(redirections.get(curSelected), String)) {
+				CoolUtil.browserLoad(redirections.get(curSelected));
+				canSelect = true;
+				backMenu();
+			} else {
 				if (redirections.get(curSelected) != null)
 					MusicBeatState.switchState(Type.createInstance(redirections.get(curSelected), []));
 				else
@@ -119,7 +122,11 @@ class MainMenuState extends MusicBeatState
 			canSelect = false;
 			FlxTween.tween(launchButtonSprite, {alpha: 0}, 0.5, {ease: FlxEase.quadOut});
 			FlxTween.tween(backButtonSprite, {alpha: 0}, 0.5, {ease: FlxEase.quadOut});
-			FlxTween.tween(blackScreen, {alpha: 0}, 0.5, {ease: FlxEase.quadOut, onComplete: function(_){canSelect = true;}});
+			FlxTween.tween(blackScreen, {alpha: 0}, 0.5, {ease: FlxEase.quadOut, onComplete: function(_){
+				canSelect = true;
+				launchButtonSprite.animation.play("idle", true);
+				backButtonSprite.animation.play("idle", true);
+			}});
 			@:privateAccess
 			if (FlxG.sound.music._sound != wiiMainMenuMusic) {
 				FlxG.sound.music.fadeOut(0.7, 0, function(_){

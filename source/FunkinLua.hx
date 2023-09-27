@@ -1,3 +1,4 @@
+import flixel.addons.display.FlxBackdrop;
 #if LUA_ALLOWED
 import llua.Lua;
 import llua.LuaL;
@@ -1442,6 +1443,19 @@ class FunkinLua {
 			PlayState.instance.modchartSprites.set(tag, leSprite);
 			leSprite.active = true;
 		});
+
+		Lua_helper.add_callback(lua, "makeLuaBackdrop", function(tag:String, image:String, x:Float, y:Float, ScrollX:Float = 1, ScrollY:Float = 1, RepeatX:Bool = true,
+			RepeatY:Bool = true, SpaceX:Int = 0, SpaceY:Int = 0)
+		{
+			tag = tag.replace('.', '');
+			resetBackdropTag(tag);
+			var leSprite:ModchartBackdrop = new ModchartBackdrop(Paths.image(image), ScrollX, ScrollY, RepeatX, RepeatY, SpaceX, SpaceY);
+			leSprite.x = x;
+			leSprite.y = y;
+			PlayState.instance.modchartBackdrops.set(tag, leSprite);
+			leSprite.active = true;
+		});
+
 		Lua_helper.add_callback(lua, "makeAnimatedLuaSprite", function(tag:String, image:String, x:Float, y:Float, ?spriteType:String = "sparrow") {
 			tag = tag.replace('.', '');
 			resetSpriteTag(tag);
@@ -2179,6 +2193,16 @@ class FunkinLua {
 				}
 			}
 		});
+		Lua_helper.add_callback(lua, "addLuaBackdrop", function(tag:String) {
+			if(PlayState.instance.modchartBackdrops.exists(tag)) {
+				var shit:ModchartBackdrop = PlayState.instance.modchartBackdrops.get(tag);
+				if(!shit.wasAdded) {
+					getInstance().add(shit);
+					shit.wasAdded = true;
+					//trace('added a thing: ' + tag);
+				}
+			}
+		});
 		Lua_helper.add_callback(lua, "removeLuaText", function(tag:String, destroy:Bool = true) {
 			if(!PlayState.instance.modchartTexts.exists(tag)) {
 				return;
@@ -2611,6 +2635,20 @@ class FunkinLua {
 		PlayState.instance.modchartSprites.remove(tag);
 	}
 
+	function resetBackdropTag(tag:String) {
+		if(!PlayState.instance.modchartBackdrops.exists(tag)) {
+			return;
+		}
+
+		var pee:ModchartBackdrop = PlayState.instance.modchartBackdrops.get(tag);
+		pee.kill();
+		if(pee.wasAdded) {
+			PlayState.instance.remove(pee, true);
+		}
+		pee.destroy();
+		PlayState.instance.modchartBackdrops.remove(tag);
+	}
+
 	function cancelTween(tag:String) {
 		if(PlayState.instance.modchartTweens.exists(tag)) {
 			PlayState.instance.modchartTweens.get(tag).cancel();
@@ -2855,6 +2893,17 @@ class ModchartSprite extends FlxSprite
 	public function new(?x:Float = 0, ?y:Float = 0)
 	{
 		super(x, y);
+		antialiasing = ClientPrefs.globalAntialiasing;
+	}
+}
+
+
+class ModchartBackdrop extends FlxBackdrop
+{
+	public var wasAdded:Bool = false;
+	public function new(?Graphic:flixel.system.FlxAssets.FlxGraphicAsset, ScrollX:Float = 1, ScrollY:Float = 1, RepeatX:Bool = true, RepeatY:Bool = true, SpaceX:Int = 0, SpaceY:Int = 0)
+	{
+		super(Graphic, ScrollX, ScrollY, RepeatX, RepeatY, SpaceX, SpaceY);
 		antialiasing = ClientPrefs.globalAntialiasing;
 	}
 }
