@@ -138,4 +138,17 @@ class CoolUtil
 		FlxG.openURL(site);
 		#end
 	}
+
+	public static function toTitleCase(str:String):String 
+	{
+		var words:Array<String> = str.toLowerCase().split(" ");
+		
+		for (i in 0...words.length) 
+		{
+			words[i] = words[i].charAt(0).toUpperCase() + words[i].substr(1);
+		}
+
+		return words.join(" ");
+		
+	}
 }

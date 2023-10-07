@@ -72,7 +72,6 @@ using StringTools;
 
 class PlayState extends MusicBeatState
 {
-	var healthBarCool:HealthBar = new HealthBar();
 	public static var STRUM_X = 42;
 	public static var STRUM_X_MIDDLESCROLL = -278;
 
@@ -1008,7 +1007,7 @@ class PlayState extends MusicBeatState
 
 		if(ClientPrefs.timeBarType == 'Song Name')
 		{
-			timeTxt.text = SONG.song;
+			timeTxt.text = CoolUtil.toTitleCase(SONG.song.toLowerCase().replace("-", " ").replace("unknown", ")28;:)))??"));
 		}
 		updateTime = showTime;
 
@@ -1156,8 +1155,6 @@ class PlayState extends MusicBeatState
 		healthBar.alpha = ClientPrefs.healthBarAlpha;
 		add(healthBar);
 		healthBarBG.sprTracker = healthBar;
-
-		healthBarCool.createBar();
 
 		iconP1 = new HealthIcon(boyfriend.healthIcon, true);
 		iconP1.visible = !ClientPrefs.hideHud;
@@ -1332,7 +1329,8 @@ class PlayState extends MusicBeatState
 
 		#if desktop
 		// Updating Discord Rich Presence.
-		DiscordClient.changePresence(detailsText, SONG.song,  iconP2.getCharacter());
+		DiscordClient.changePresence(detailsText, CoolUtil.toTitleCase(SONG.song.toLowerCase().replace("-", " ").replace("unknown", ")28;:)))??")),  iconP2.getCharacter());
+		DiscordClient.changeIcon(SONG.song.toLowerCase().replace(" ", "-"));
 		#end
 
 		if(!ClientPrefs.controllerMode)
@@ -2303,7 +2301,8 @@ class PlayState extends MusicBeatState
 
 		#if desktop
 		// Updating Discord Rich Presence (with Time Left)
-		DiscordClient.changePresence(detailsText, SONG.song, iconP2.getCharacter(), true, songLength);
+		DiscordClient.changePresence(detailsText, CoolUtil.toTitleCase(SONG.song.toLowerCase().replace("-", " ").replace("unknown", ")28;:)))??")), iconP2.getCharacter(), true, songLength);
+		DiscordClient.changeIcon(SONG.song.toLowerCase().replace(" ", "-"));
 		#end
 		setOnLuas('songLength', songLength);
 		callOnLuas('onSongStart', []);
@@ -2710,11 +2709,13 @@ class PlayState extends MusicBeatState
 			#if desktop
 			if (startTimer != null && startTimer.finished)
 			{
-				DiscordClient.changePresence(detailsText, SONG.song, iconP2.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.noteOffset);
+				DiscordClient.changePresence(detailsText, CoolUtil.toTitleCase(SONG.song.toLowerCase().replace("-", " ").replace("unknown", ")28;:)))??")), iconP2.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.noteOffset);
+				DiscordClient.changeIcon(SONG.song.toLowerCase().replace(" ", "-"));
 			}
 			else
 			{
-				DiscordClient.changePresence(detailsText, SONG.song, iconP2.getCharacter());
+				DiscordClient.changePresence(detailsText, CoolUtil.toTitleCase(SONG.song.toLowerCase().replace("-", " ").replace("unknown", ")28;:)))??")), iconP2.getCharacter());
+				DiscordClient.changeIcon(SONG.song.toLowerCase().replace(" ", "-"));
 			}
 			#end
 		}
@@ -2729,11 +2730,13 @@ class PlayState extends MusicBeatState
 		{
 			if (Conductor.songPosition > 0.0)
 			{
-				DiscordClient.changePresence(detailsText, SONG.song, iconP2.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.noteOffset);
+				DiscordClient.changePresence(detailsText, CoolUtil.toTitleCase(SONG.song.toLowerCase().replace("-", " ").replace("unknown", ")28;:)))??")), iconP2.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.noteOffset);
+				DiscordClient.changeIcon(SONG.song.toLowerCase().replace(" ", "-"));
 			}
 			else
 			{
-				DiscordClient.changePresence(detailsText, SONG.song, iconP2.getCharacter());
+				DiscordClient.changePresence(detailsText, CoolUtil.toTitleCase(SONG.song.toLowerCase().replace("-", " ").replace("unknown", ")28;:)))??")), iconP2.getCharacter());
+				DiscordClient.changeIcon(SONG.song.toLowerCase().replace(" ", "-"));
 			}
 		}
 		#end
@@ -2746,7 +2749,8 @@ class PlayState extends MusicBeatState
 		#if desktop
 		if (health > 0 && !paused)
 		{
-			DiscordClient.changePresence(detailsPausedText, SONG.song, iconP2.getCharacter());
+			DiscordClient.changePresence(detailsPausedText, CoolUtil.toTitleCase(SONG.song.toLowerCase().replace("-", " ").replace("unknown", ")28;:)))??")), iconP2.getCharacter());
+			DiscordClient.changeIcon(SONG.song.toLowerCase().replace(" ", "-"));
 		}
 		#end
 
@@ -3236,7 +3240,8 @@ class PlayState extends MusicBeatState
 		//}
 
 		#if desktop
-		DiscordClient.changePresence(detailsPausedText, SONG.song, iconP2.getCharacter());
+		DiscordClient.changePresence(detailsPausedText, CoolUtil.toTitleCase(SONG.song.toLowerCase().replace("-", " ").replace("unknown", ")28;:)))??")), iconP2.getCharacter());
+		DiscordClient.changeIcon(SONG.song.toLowerCase().replace(" ", "-"));
 		#end
 	}
 
@@ -3250,6 +3255,7 @@ class PlayState extends MusicBeatState
 
 		#if desktop
 		DiscordClient.changePresence("Chart Editor", null, null, true);
+		DiscordClient.changeIcon("icon");
 		#end
 	}
 
@@ -3281,7 +3287,8 @@ class PlayState extends MusicBeatState
 
 				#if desktop
 				// Game Over doesn't get his own variable because it's only used here
-				DiscordClient.changePresence("Game Over - " + detailsText, SONG.song, iconP2.getCharacter());
+				DiscordClient.changePresence("Game Over - " + detailsText, CoolUtil.toTitleCase(SONG.song.toLowerCase().replace("-", " ").replace("unknown", ")28;:)))??")), iconP2.getCharacter());
+				DiscordClient.changeIcon(SONG.song.toLowerCase().replace(" ", "-"));
 				#end
 				isDead = true;
 				return true;
@@ -3885,10 +3892,9 @@ class PlayState extends MusicBeatState
 				}
 				else
 				{
-					var difficulty:String = CoolUtil.getDifficultyFilePath();
 
 					trace('LOADING NEXT SONG');
-					trace(Paths.formatToSongPath(PlayState.storyPlaylist[0]) + difficulty);
+					trace(Paths.formatToSongPath(PlayState.storyPlaylist[0]));
 
 					var winterHorrorlandNext = (Paths.formatToSongPath(SONG.song) == "eggnog");
 					if (winterHorrorlandNext)
@@ -3908,7 +3914,7 @@ class PlayState extends MusicBeatState
 					prevCamFollow = camFollow;
 					prevCamFollowPos = camFollowPos;
 
-					PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0] + difficulty, PlayState.storyPlaylist[0]);
+					PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0], PlayState.storyPlaylist[0]);
 					FlxG.sound.music.stop();
 
 					if(winterHorrorlandNext) {

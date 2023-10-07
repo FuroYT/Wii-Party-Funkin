@@ -34,6 +34,8 @@ class TitleState extends MusicBeatState
 		FlxG.keys.preventDefaultKeys = [TAB];
 		PlayerSettings.init();
 		super.create();
+		@:privateAccess
+		MainMenuState.preloadChannelsMusic();
 		FlxG.save.bind('funkin', 'ninjamuffin99');
 		ClientPrefs.loadPrefs();
 		Highscore.load();
@@ -97,8 +99,6 @@ class TitleState extends MusicBeatState
 			FlxTween.tween(press, {alpha: 1}, 0.1, {ease: FlxEase.expoOut, onComplete: function(_) {
 				new FlxTimer().start(1, function(tmr:FlxTimer)
 				{
-					@:privateAccess
-					MainMenuState.preloadChannelsMusic();
 					MusicBeatState.switchState(new MainMenuState());
 					@:privateAccess
 					FlxG.sound.playMusic(MainMenuState.wiiMainMenuMusic, 0, true);

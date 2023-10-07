@@ -72,7 +72,7 @@ class MainMenuState extends MusicBeatState
 		'gallery' => GalleryState,
 		'credits' => CreditsState,
 		'shop' => ShopState,
-		'news' => null,
+		'news' => NewsState,
 		'options' => options.OptionsState,
 		'homebrew' => HomebrewMenu,
 		'discord' => 'https://discord.gg/xA2envhqWs'
@@ -140,24 +140,20 @@ class MainMenuState extends MusicBeatState
 
 	static function preloadChannelsMusic()
 	{
-		var thePreloaderSound:FlxSound;
-		thePreloaderSound = new FlxSound();
-		thePreloaderSound.loadEmbedded(discIntroSound);
-		thePreloaderSound.loadEmbedded(freeplayIntroSound);
-		thePreloaderSound.loadEmbedded(freeplayLoopSound);
-		thePreloaderSound.loadEmbedded(galleryIntroSound);
-		thePreloaderSound.loadEmbedded(creditsIntroSound);
-		thePreloaderSound.loadEmbedded(shopIntroSound);
-		thePreloaderSound.loadEmbedded(shopLoopSound);
-		thePreloaderSound.loadEmbedded(newsIntroSound);
-		thePreloaderSound.loadEmbedded(optionsIntroSound);
-		thePreloaderSound.loadEmbedded(optionsLoopSound);
-		thePreloaderSound.loadEmbedded(discordIntroSound);
-		thePreloaderSound.loadEmbedded(homebrewIntroSound);
-		thePreloaderSound.loadEmbedded(homebrewLoopSound);
-		thePreloaderSound.loadEmbedded(wiiMainMenuMusic);
-		thePreloaderSound.destroy();
-		thePreloaderSound = null;
+		FlxG.sound.cache(discIntroSound);
+		FlxG.sound.cache(freeplayIntroSound);
+		FlxG.sound.cache(freeplayLoopSound);
+		FlxG.sound.cache(galleryIntroSound);
+		FlxG.sound.cache(creditsIntroSound);
+		FlxG.sound.cache(shopIntroSound);
+		FlxG.sound.cache(shopLoopSound);
+		FlxG.sound.cache(newsIntroSound);
+		FlxG.sound.cache(optionsIntroSound);
+		FlxG.sound.cache(optionsLoopSound);
+		FlxG.sound.cache(discordIntroSound);
+		FlxG.sound.cache(homebrewIntroSound);
+		FlxG.sound.cache(homebrewLoopSound);
+		FlxG.sound.cache(wiiMainMenuMusic);
 	}
 
 	override function create()

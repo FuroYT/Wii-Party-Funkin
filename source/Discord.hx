@@ -13,6 +13,7 @@ using StringTools;
 class DiscordClient
 {
 	public static var isInitialized:Bool = false;
+	static var currentPresence:DiscordPresenceOptions = {};
 	public function new()
 	{
 		trace("Discord Client starting...");
@@ -78,30 +79,37 @@ class DiscordClient
 			endTimestamp = startTimestamp + endTimestamp;
 		}
 
-		DiscordRpc.presence({
+		currentPresence = {
 			details: details,
 			state: state,
 			largeImageKey: 'icon',
-			largeImageText: "Engine Version: " + MainMenuState.psychEngineVersion,
+			largeImageText: "Mod Version: " + MainMenuState.modVersion,
 			smallImageKey : smallImageKey,
 			// Obtained times are in milliseconds so they are divided so Discord can use it
 			startTimestamp : Std.int(startTimestamp / 1000),
             endTimestamp : Std.int(endTimestamp / 1000)
-		});
+		}
+
+		DiscordRpc.presence(currentPresence);
 
 		//trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp');
 	}
 
 	public static function iconTest(icon:String)
 	{
-		DiscordRpc.presence({
-			details: 'Icon Test',
-			state: "Testing RPC Icons",
-			largeImageKey: icon,
-			largeImageText: "Engine Version: " + MainMenuState.psychEngineVersion
-		});
+		currentPresence.details = "Icon Test";
+		currentPresence.state = "Testing RPC Icons";
+		currentPresence.largeImageKey = icon;
+		currentPresence.largeImageText = "Mod Version: " + MainMenuState.modVersion;
+		DiscordRpc.presence(currentPresence);
 
 		//trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp');
+	}
+
+	public static function changeIcon(icon:String)
+	{
+		currentPresence.largeImageKey = icon;
+		DiscordRpc.presence(currentPresence);
 	}
 
 	#if LUA_ALLOWED
