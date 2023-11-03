@@ -274,6 +274,7 @@ class MainMenuState extends MusicBeatState
 			if (launchButtonSprite.animation.curAnim.name == "press") return;
 			launchButtonSprite.animation.play("press", true);
 			launchButtonSprite.offset.set(155, 42);
+			FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
 			launchButtonSprite.animation.finishCallback = function(_){launchMenu();};
 		}
 
@@ -295,6 +296,7 @@ class MainMenuState extends MusicBeatState
 			backButtonSprite.animation.play("press", true);
 			backButtonSprite.offset.set(152, 42);
 			backButtonSprite.animation.finishCallback = function(_){
+				FlxG.sound.play(Paths.sound('cancelMenu'), 0.7);
 				backMenu();
 				backButtonSprite.animation.play("idle", true);
 			};
@@ -303,7 +305,8 @@ class MainMenuState extends MusicBeatState
 		new FlxTimer().start(1, function(timer:FlxTimer){
 			beatShit++;
 			theColon = beatShit % 2 == 1 ? ":" : " ";
-		}, Std.int(Math.POSITIVE_INFINITY));
+			timer.reset(1);
+		});
 
 		super.create();
 	}
