@@ -75,7 +75,7 @@ class MainMenuState extends MusicBeatState
 		'news' => NewsState,
 		'options' => options.OptionsState,
 		'homebrew' => HomebrewMenu,
-		'discord' => 'https://discord.gg/xA2envhqWs'
+		'discord' => 'https://discord.gg/QvPfbPF83U'
 	];
 
 	var debugKeys:Array<FlxKey>;
