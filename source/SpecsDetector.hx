@@ -17,12 +17,12 @@ class SpecsDetector extends MusicBeatState
 		super.create();
 
 		FlxG.save.data.cachestart = checkSpecs();
-		if (FlxG.save.data.usernameForCrash == null || FlxG.save.data.usernameForCrash == '')
+		/*if (FlxG.save.data.usernameForCrash == null || FlxG.save.data.usernameForCrash == '')
 		{
 			FlxG.switchState(new NameAsk());
-		} else {
+		} else {*/
 			FlxG.switchState(Type.createInstance(Main.initialState, []));
-		}
+		//}
 	}
 
 	function checkSpecs():Bool
