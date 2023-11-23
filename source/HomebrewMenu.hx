@@ -1,6 +1,7 @@
 import flixel.FlxSprite;
 import flixel.FlxG;
 import flixel.addons.ui.FlxUIInputText;
+import shaders.WaterEffect;
 
 class HomebrewMenu extends MusicBeatState {
     var textBox:FlxUIInputText;
@@ -19,6 +20,11 @@ class HomebrewMenu extends MusicBeatState {
         bg.updateHitbox();
         add(bg);
         bg.screenCenter(XY);
+        var waterShader:WaterEffect = new WaterEffect();
+        bg.shader = waterShader;
+        FlxG.signals.postUpdate.add(function(){
+            waterShader.update(FlxG.elapsed);
+        });
         FlxG.mouse.visible = true;
         textBox = new FlxUIInputText(0, 0, Std.int(FlxG.width / 4), '');
         add(textBox);

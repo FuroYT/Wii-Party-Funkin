@@ -18,8 +18,8 @@ class StoryDisk extends MusicBeatState {
         1 => ["stupid-cursor", "shop-tv"],
         2 => ["nightanova", "perhaps", "zombie-tag"],
         3 => ["strike", "final-match", "smash-battle"],
-        4 => ["new-super-funk", "sakura-blossom"],
-        5 => ["rainbow-kart", "unknown"]
+        4 => ["rainbow-kart", "unknown"],
+        5 => ["new-super-funk", "sakura-blossom"]
 	];
     override public function create() {
         bg = new FlxSprite(0, 0).loadGraphic(Paths.image("diskmenu/bg", "preload"));
@@ -41,6 +41,7 @@ class StoryDisk extends MusicBeatState {
         reloadDisk(true);
         super.create();
     }
+    
     function reloadDisk(firstTime:Bool)
     {
         try {

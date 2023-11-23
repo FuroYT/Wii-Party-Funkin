@@ -6,6 +6,7 @@ import flixel.tweens.FlxEase;
 import flixel.FlxCamera;
 import flixel.system.FlxAssets.FlxSoundAsset;
 import flixel.ui.FlxButton;
+import flixel.addons.ui.FlxUITooltip;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -27,6 +28,7 @@ class MainMenuState extends MusicBeatState
 	public static var modVersion:String = "3.0.0";
 	public static var curSelected:String = "nuh uh";
 	public static var curSelected2:Int;
+	public static var curHovered:Int;
 	static var discIntroSound:FlxSoundAsset =     Paths.music('channels/disc/intro');
 	static var freeplayIntroSound:FlxSoundAsset = Paths.music('channels/freeplay/intro');
 	static var freeplayLoopSound:FlxSoundAsset =  Paths.music('channels/freeplay/loop');
@@ -372,6 +374,13 @@ class MainMenuState extends MusicBeatState
 			}
 		}
 		return false;
+	}
+
+	function mouseHover(daSelection:Int)
+	{
+		if (curHovered == daSelection)
+			return;
+		curHovered = daSelection;
 	}
 	var coolSwag:Int = 0;
 	var beatShit:Int = 0;
