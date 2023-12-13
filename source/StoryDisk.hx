@@ -19,8 +19,8 @@ class StoryDisk extends MusicBeatState {
         1 => ["stupid-cursor", "shop-tv"],
         2 => ["nightanova", "perhaps", "zombie-tag"],
         3 => ["strike", "final-match", "smash-battle"],
-        4 => ["new-super-funk", "sakura-blossom"],
-        5 => ["rainbow-kart", "unknown"]
+        4 => ["rainbow-kart", "unknown"],
+        5 => ["new-super-funk", "sakura-blossom"]
 	];
     function dropFile(file:String)
     {
@@ -58,6 +58,7 @@ class StoryDisk extends MusicBeatState {
         FlxG.stage.window.onDropFile.add(dropFile);
         super.create();
     }
+    
     function reloadDisk(firstTime:Bool)
     {
         try {
