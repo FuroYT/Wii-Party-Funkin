@@ -35,6 +35,7 @@ class StoryDisk extends MusicBeatState {
             FileSystem.rename(FileSystem.absolutePath("./cdreader/" + folder[i]), FileSystem.absolutePath("./assets/cds/" + folder[i]));
         }
         FileSystem.rename(file, FileSystem.absolutePath("./cdreader/" + Path.withoutDirectory(file)));
+        FlxG.stage.window.focus();
         reloadDisk(false);
     }
     override public function create() {
