@@ -1,3 +1,4 @@
+import haxe.io.Path;
 import flixel.math.FlxMath;
 import flixel.FlxG;
 import flixel.tweens.FlxEase;
@@ -21,6 +22,21 @@ class StoryDisk extends MusicBeatState {
         4 => ["new-super-funk", "sakura-blossom"],
         5 => ["rainbow-kart", "unknown"]
 	];
+    function dropFile(file:String)
+    {
+        if (Path.extension(file).toLowerCase() != "iso") return;
+        if (!FileSystem.exists('./cdreader')) FileSystem.createDirectory('./cdreader');
+        var folder:Array<String> = FileSystem.readDirectory('./cdreader');
+        var folderCopy:Array<String> = folder;
+        var maxNumOfFiles = folder.contains('readme.txt') ? 2 : 1;
+        if (folder.contains('readme.txt')) folder.remove('readme.txt');
+        for (i in 0...folder.length)
+        {
+            FileSystem.rename(FileSystem.absolutePath("./cdreader/" + folder[i]), FileSystem.absolutePath("./assets/cds/" + folder[i]));
+        }
+        FileSystem.rename(file, FileSystem.absolutePath("./cdreader/" + Path.withoutDirectory(file)));
+        reloadDisk(false);
+    }
     override public function create() {
         bg = new FlxSprite(0, 0).loadGraphic(Paths.image("diskmenu/bg", "preload"));
         bg.setGraphicSize(FlxG.width, FlxG.height);
@@ -39,6 +55,7 @@ class StoryDisk extends MusicBeatState {
         textForError.screenCenter(Y);
         textForError.setFormat(null, textForError.size, FlxColor.BLACK);
         reloadDisk(true);
+        FlxG.stage.window.onDropFile.add(dropFile);
         super.create();
     }
     function reloadDisk(firstTime:Bool)
@@ -80,7 +97,7 @@ class StoryDisk extends MusicBeatState {
                 }
             } else if ((folder.length == 1 && folder.contains('readme.txt')) || (folder.length == 0 && !folder.contains('readme.txt')))
             {
-                showTextAlongDisk('Insert a disk from "assets/cds" to "cdreader/"\nTo load a week');
+                showTextAlongDisk('Insert a disk from "assets/cds" to "cdreader/"\nOr drag and drop a disk file from "assets/cds"\n\nTo load a week');
                 showDisc("Disc_Unknown", firstTime);
                 curWeek = -1;
                 discValid = false;
@@ -168,7 +185,11 @@ class StoryDisk extends MusicBeatState {
     var angleForDisc:Float = 0;
     override function update(elapsed:Float) {
         discImage.angle = FlxMath.lerp(angleForDisc, discImage.angle, CoolUtil.boundTo(1 - (elapsed * 3.125), 0, 1));
-        if (controls.BACK || wiimoteReadout.buttons.b) MusicBeatState.switchState(new MainMenuState());
+        if (controls.BACK || wiimoteReadout.buttons.b)
+        {
+            MusicBeatState.switchState(new MainMenuState());
+            FlxG.stage.window.onDropFile.remove(dropFile);
+        }
         if (FlxG.keys.justPressed.ENTER && curWeek != -1) selectWeek(curWeek);
         super.update(elapsed);
     }
