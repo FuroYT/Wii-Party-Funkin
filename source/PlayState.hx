@@ -137,7 +137,6 @@ class PlayState extends MusicBeatState
 	public static var isStoryMode:Bool = false;
 	public static var storyWeek:Int = 0;
 	public static var storyPlaylist:Array<String> = [];
-	public static var storyDifficulty:Int = 1;
 
 	public var spawnTime:Float = 2000;
 
@@ -190,7 +189,6 @@ class PlayState extends MusicBeatState
 	public var endingSong:Bool = false;
 	public var startingSong:Bool = false;
 	private var updateTime:Bool = true;
-	public static var changedDifficulty:Bool = false;
 	public static var chartingMode:Bool = false;
 
 	//Gameplay settings
@@ -813,10 +811,6 @@ class PlayState extends MusicBeatState
 		{
 			case 'stress':
 				GameOverSubstate.characterName = 'bf-holding-gf-dead';
-		}
-
-		if(isPixelStage) {
-			introSoundsSuffix = '-pixel';
 		}
 
 		add(gfGroup); //Needed for blammed lights
@@ -3927,7 +3921,7 @@ class PlayState extends MusicBeatState
 				#if !switch
 				var percent:Float = ratingPercent;
 				if(Math.isNaN(percent)) percent = 0;
-				Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent);
+				Highscore.saveScore(SONG.song, songScore, percent);
 				#end
 			}
 
@@ -3961,31 +3955,18 @@ class PlayState extends MusicBeatState
 
 						if (SONG.validScore)
 						{
-							Highscore.saveWeekScore("wpf_week" + storyWeek, campaignScore, storyDifficulty);
+							Highscore.saveWeekScore("wpf_week" + storyWeek, campaignScore);
 						}
 
 						FlxG.save.data.weekCompleted = StoryMenuState.weekCompleted;
 						FlxG.save.flush();
 					}
-					changedDifficulty = false;
 				}
 				else
 				{
 
 					trace('LOADING NEXT SONG');
 					trace(Paths.formatToSongPath(PlayState.storyPlaylist[0]));
-
-					var winterHorrorlandNext = (Paths.formatToSongPath(SONG.song) == "eggnog");
-					if (winterHorrorlandNext)
-					{
-						var blackShit:FlxSprite = new FlxSprite(-FlxG.width * FlxG.camera.zoom,
-							-FlxG.height * FlxG.camera.zoom).makeGraphic(FlxG.width * 3, FlxG.height * 3, FlxColor.BLACK);
-						blackShit.scrollFactor.set();
-						add(blackShit);
-						camHUD.visible = false;
-
-						FlxG.sound.play(Paths.sound('Lights_Shut_off'));
-					}
 
 					FlxTransitionableState.skipNextTransIn = true;
 					FlxTransitionableState.skipNextTransOut = true;
@@ -3996,15 +3977,8 @@ class PlayState extends MusicBeatState
 					PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0], PlayState.storyPlaylist[0]);
 					FlxG.sound.music.stop();
 
-					if(winterHorrorlandNext) {
-						new FlxTimer().start(1.5, function(tmr:FlxTimer) {
-							cancelMusicFadeTween();
-							LoadingState.loadAndSwitchState(new PlayState());
-						});
-					} else {
-						cancelMusicFadeTween();
-						LoadingState.loadAndSwitchState(new PlayState());
-					}
+					cancelMusicFadeTween();
+					LoadingState.loadAndSwitchState(new PlayState());
 				}
 			}
 			else
@@ -4017,7 +3991,6 @@ class PlayState extends MusicBeatState
 				}
 				MusicBeatState.switchState(new FreeplayState());
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
-				changedDifficulty = false;
 			}
 			transitioning = true;
 		}
@@ -4180,15 +4153,8 @@ class PlayState extends MusicBeatState
 			numScore.x += ClientPrefs.comboOffset[2];
 			numScore.y -= ClientPrefs.comboOffset[3];
 
-			if (!PlayState.isPixelStage)
-			{
-				numScore.antialiasing = ClientPrefs.globalAntialiasing;
-				numScore.setGraphicSize(Std.int(numScore.width * 0.5));
-			}
-			else
-			{
-				numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
-			}
+			numScore.antialiasing = ClientPrefs.globalAntialiasing;
+			numScore.setGraphicSize(Std.int(numScore.width * 0.5));
 			numScore.updateHitbox();
 
 			numScore.acceleration.y = FlxG.random.int(200, 300);

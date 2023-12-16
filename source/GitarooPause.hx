@@ -64,7 +64,6 @@ class GitarooPause extends MusicBeatState
 			else
 			{
 				PlayState.usedPractice = false;
-				PlayState.changedDifficulty = false;
 				PlayState.seenCutscene = false;
 				PlayState.deathCounter = 0;
 				PlayState.cpuControlled = false;
@@ -80,15 +79,7 @@ class GitarooPause extends MusicBeatState
 	{
 		replaySelect = !replaySelect;
 
-		if (replaySelect)
-		{
-			cancelButton.animation.curAnim.curFrame = 0;
-			replayButton.animation.curAnim.curFrame = 1;
-		}
-		else
-		{
-			cancelButton.animation.curAnim.curFrame = 1;
-			replayButton.animation.curAnim.curFrame = 0;
-		}
+		cancelButton.animation.curAnim.curFrame = replaySelect ? 0 : 1;
+		replayButton.animation.curAnim.curFrame = replaySelect ? 1 : 0;
 	}
 }

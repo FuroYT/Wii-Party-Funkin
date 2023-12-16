@@ -1,5 +1,7 @@
 package;
 
+import flixel.input.keyboard.FlxKey;
+import flixel.math.FlxMath;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -87,17 +89,37 @@ class FreeplayState extends MusicBeatState
 	public static var vocals:FlxSound = null;
 	var holdTime:Float = 0;
 
+	var curSelected(default, set):Int;
+	var curSong:String;
+	var curDisplay:String;
+
 	function mouseShit():Bool
 	{
 		for (item in 0...menuItemsToAddBitch.length) {
 			var spr = menuItemsToAddBitch[item][3];
 			if (FlxG.mouse.overlaps(spr))
 			{
+				var leText:String = "Press {RESET1} to reset your highscore.";
+				leText = StringTools.replace(leText, "{RESET1}", ClientPrefs.keyBinds.get("reset")[0].toString());
+				if (ClientPrefs.keyBinds.get("reset")[0] != FlxKey.NONE && ClientPrefs.keyBinds.get("reset")[1] != FlxKey.NONE)
+				{
+					leText = "Press {RESET1} or {RESET2} to reset your highscore.";
+					leText = StringTools.replace(leText, "{RESET1}", ClientPrefs.keyBinds.get("reset")[0].toString());
+					leText = StringTools.replace(leText, "{RESET2}", ClientPrefs.keyBinds.get("reset")[1].toString());
+				}
+				if (ClientPrefs.keyBinds.get("reset")[0] == FlxKey.NONE && ClientPrefs.keyBinds.get("reset")[1] != FlxKey.NONE)
+				{
+					leText = "Press {RESET1} to reset your highscore.";
+					leText = StringTools.replace(leText, "{RESET1}", ClientPrefs.keyBinds.get("reset")[1].toString());
+				}
 				var shit = Std.string(menuItemsToAddBitch[item][2]).replace("-", " ");
-				bottomText.text = 'Currently Selecting Song "${shit == "unknown" ? ")28;:)))??" : CoolUtil.toTitleCase(shit)}" - Click to play!';
+				curDisplay = shit == "unknown" ? ")28;:)))??" : CoolUtil.toTitleCase(shit);
+				curSong = menuItemsToAddBitch[item][2];
+				bottomText.text = 'Song: $curDisplay - Click to play! | High score: ${Highscore.getScore(shit)} (${Highscore.floorDecimal(Highscore.getRating(shit) * 100, 2) }%) | $leText';
 				if (FlxG.mouse.justPressed) {
 					startSong(menuItemsToAddBitch[item][2]);
 				}
+				if (curSelected != spr.ID) curSelected = spr.ID;
 				return true;
 			}
 		}
@@ -108,7 +130,6 @@ class FreeplayState extends MusicBeatState
 		persistentUpdate = false;
 		PlayState.SONG = Song.loadFromJson(songName, songName);
 		PlayState.isStoryMode = false;
-		PlayState.storyDifficulty = 1;
 		canPress = false;
 		if (FlxG.keys.pressed.SHIFT){
 			LoadingState.loadAndSwitchState(new ChartingState());
@@ -126,14 +147,25 @@ class FreeplayState extends MusicBeatState
 
 		if (canPress)
 		{
-			if(!mouseShit())
+			if(!mouseShit()) {
 				bottomText.text = "Hover a song with your mouse to select it!";
+				curSelected = -1;
+				curSong = "";
+			}
 		}
 
 		var shiftMult:Int = 1;
 		if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
 
-		if (controls.BACK && canPress)
+		for (item in 0...menuItemsToAddBitch.length)
+		{
+			var spr:FlxSprite = menuItemsToAddBitch[item][3];
+			var size = curSelected == spr.ID ? 1.1 : 1;
+			spr.scale.x = FlxMath.lerp(size, spr.scale.x, CoolUtil.boundTo(1 - (FlxG.elapsed * 3.125), 0, 1));
+			spr.scale.y = FlxMath.lerp(size, spr.scale.y, CoolUtil.boundTo(1 - (FlxG.elapsed * 3.125), 0, 1));
+		}
+
+		if ((controls.BACK || wiimoteReadout.buttons.b) && canPress)
 		{
 			persistentUpdate = false;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
@@ -145,7 +177,22 @@ class FreeplayState extends MusicBeatState
 				@:privateAccess
 				FlxG.sound.music.onComplete = function () {FlxG.sound.playMusic(MainMenuState.wiiMainMenuMusic, 0.8);};
 			});
+		} else if (controls.RESET && canPress)
+		{
+			if (curSong == "") return;
+			canPress = false;
+			var substate = new ResetScoreSubState(curSong, curDisplay);
+			substate.closeCallback = () -> {
+				canPress = true;
+			}
+			openSubState(substate);
 		}
 		super.update(elapsed);
+	}
+
+	function set_curSelected(value:Int):Int {
+		curSelected = value;
+		if (value != -1) FlxG.sound.play(Paths.sound("channelOver", 'preload'), 0.7);
+		return value;
 	}
 }

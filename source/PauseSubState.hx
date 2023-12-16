@@ -182,7 +182,6 @@ class PauseSubState extends MusicBeatSubstate
 					close();
 				case 'Toggle Practice Mode':
 					PlayState.instance.practiceMode = !PlayState.instance.practiceMode;
-					PlayState.changedDifficulty = true;
 					practiceText.visible = PlayState.instance.practiceMode;
 				case "Restart Song":
 					restartSong();
@@ -209,7 +208,6 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.instance.finishSong(true);
 				case 'Toggle Botplay':
 					PlayState.instance.cpuControlled = !PlayState.instance.cpuControlled;
-					PlayState.changedDifficulty = true;
 					PlayState.instance.botplayTxt.visible = PlayState.instance.cpuControlled;
 					PlayState.instance.botplayTxt.alpha = 1;
 					PlayState.instance.botplaySine = 0;
@@ -225,7 +223,6 @@ class PauseSubState extends MusicBeatSubstate
 					}
 					PlayState.cancelMusicFadeTween();
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
-					PlayState.changedDifficulty = false;
 					PlayState.chartingMode = false;
 			}
 		}

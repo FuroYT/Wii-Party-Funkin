@@ -25,6 +25,7 @@ class HomebrewMenu extends MusicBeatState {
         FlxG.signals.postUpdate.add(function(){
             waterShader.update(FlxG.elapsed);
         });
+        MouseCursors.loadCursor("homebrew");
         FlxG.mouse.visible = true;
         textBox = new FlxUIInputText(0, 0, Std.int(FlxG.width / 4), '');
         add(textBox);
@@ -50,7 +51,6 @@ class HomebrewMenu extends MusicBeatState {
 		persistentUpdate = false;
 		PlayState.SONG = Song.loadFromJson(songName, songName);
 		PlayState.isStoryMode = false;
-		PlayState.storyDifficulty = 1;
 		LoadingState.loadAndSwitchState(new PlayState());
 	}
 
@@ -81,5 +81,11 @@ class HomebrewMenu extends MusicBeatState {
             }
         }
         super.update(elapsed);
+    }
+
+    override function destroy()
+    {
+        MouseCursors.loadCursor("normal");
+        super.destroy();
     }
 }

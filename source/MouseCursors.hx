@@ -11,9 +11,9 @@ class MouseCursors {
         var cursor:BitmapData;
         switch (cursorToLoad.toLowerCase())
         {
-            case 'normal' | 'wii' | 'basic':
+            case 'normal' | 'wii':
                 cursor = new NormalCursor(0, 0);
-            case 'fail0verflow' | 'homebrew' | 'hack':
+            case 'homebrew':
                 cursor = new HomebrewCursor(0, 0);
             default:
                 cursor = new NormalCursor(0, 0);

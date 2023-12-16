@@ -1,3 +1,4 @@
+import flixel.math.FlxMath;
 import flixel.FlxState;
 import flixel.util.FlxTimer;
 import flixel.system.FlxSound;
@@ -27,7 +28,7 @@ class MainMenuState extends MusicBeatState
 	public static var psychEngineVersion:String = '0.6.2'; //This is also used for Discord RPC
 	public static var modVersion:String = "3.0.0";
 	public static var curSelected:String = "nuh uh";
-	public static var curSelected2:Int;
+	public static var curSelectedInt(default, set):Int;
 	public static var curHovered:Int;
 	static var discIntroSound:FlxSoundAsset =     Paths.music('channels/disc/intro');
 	static var freeplayIntroSound:FlxSoundAsset = Paths.music('channels/freeplay/intro');
@@ -39,7 +40,6 @@ class MainMenuState extends MusicBeatState
 	static var newsIntroSound:FlxSoundAsset =     Paths.music('channels/news/intro');
 	static var optionsIntroSound:FlxSoundAsset =  Paths.music('channels/options/intro');
 	static var optionsLoopSound:FlxSoundAsset =   Paths.music('channels/options/loop');
-	static var discordIntroSound:FlxSoundAsset =  Paths.music('channels/discord/intro');
 	static var homebrewIntroSound:FlxSoundAsset = Paths.music('channels/homebrew/intro');
 	static var homebrewLoopSound:FlxSoundAsset =  Paths.music('channels/homebrew/loop');
 	static var wiiMainMenuMusic:FlxSoundAsset =   Paths.music('freakyMenu');
@@ -68,7 +68,7 @@ class MainMenuState extends MusicBeatState
 		[FlxG.width - 200, FlxG.height - 180, 'discord']
 	];
 
-	var redirections:Map<String, Dynamic> = [
+	var redirections:Map<String, Class<FlxState>> = [
 		'disc' => StoryDisk,
 		'mii' => FreeplayState,
 		'gallery' => GalleryState,
@@ -76,8 +76,7 @@ class MainMenuState extends MusicBeatState
 		'shop' => ShopState,
 		'news' => NewsState,
 		'options' => options.OptionsState,
-		'homebrew' => HomebrewMenu,
-		'discord' => 'https://discord.gg/QvPfbPF83U'
+		'homebrew' => HomebrewMenu
 	];
 
 	var debugKeys:Array<FlxKey>;
@@ -104,16 +103,10 @@ class MainMenuState extends MusicBeatState
 		if (inChannelMode && canSelect)
 		{
 			canSelect = false;
-			if (Std.isOfType(redirections.get(curSelected), String)) {
-				CoolUtil.browserLoad(redirections.get(curSelected));
-				canSelect = true;
-				backMenu();
-			} else {
-				if (redirections.get(curSelected) != null)
-					MusicBeatState.switchState(Type.createInstance(redirections.get(curSelected), []));
-				else
-					MusicBeatState.switchState(Type.createInstance(Type.getClass(this), []));
-			}
+			if (redirections.get(curSelected) != null)
+				MusicBeatState.switchState(Type.createInstance(redirections.get(curSelected), []));
+			else
+				MusicBeatState.switchState(Type.createInstance(Type.getClass(this), []));
 		}
 	}
 	
@@ -152,7 +145,6 @@ class MainMenuState extends MusicBeatState
 		FlxG.sound.cache(newsIntroSound);
 		FlxG.sound.cache(optionsIntroSound);
 		FlxG.sound.cache(optionsLoopSound);
-		FlxG.sound.cache(discordIntroSound);
 		FlxG.sound.cache(homebrewIntroSound);
 		FlxG.sound.cache(homebrewLoopSound);
 		FlxG.sound.cache(wiiMainMenuMusic);
@@ -297,8 +289,8 @@ class MainMenuState extends MusicBeatState
 			if (backButtonSprite.animation.curAnim.name == "press") return;
 			backButtonSprite.animation.play("press", true);
 			backButtonSprite.offset.set(152, 42);
+			FlxG.sound.play(Paths.sound('cancelMenu'), 0.7);
 			backButtonSprite.animation.finishCallback = function(_){
-				FlxG.sound.play(Paths.sound('cancelMenu'), 0.7);
 				backMenu();
 				backButtonSprite.animation.play("idle", true);
 			};
@@ -323,7 +315,7 @@ class MainMenuState extends MusicBeatState
 	#end
 
 	function select() {
-		switch(curSelected2)
+		switch(curSelectedInt)
 		{
 			case 0:
 				selectMenu('disc', discIntroSound, null);
@@ -342,7 +334,7 @@ class MainMenuState extends MusicBeatState
 			case 7:
 				selectMenu('homebrew', homebrewIntroSound, homebrewLoopSound);
 			case 8:
-				selectMenu('discord', discordIntroSound, null);
+				CoolUtil.browserLoad("https://discord.gg/QvPfbPF83U");
 			default:
 				FlxG.resetState(); //when the option doesnt exist
 		}
@@ -359,17 +351,19 @@ class MainMenuState extends MusicBeatState
 
 	function mouseShit()
 	{
+		if (inChannelMode) return true;
 		var things = ['disc', 'mii', 'gallery', 'credits', 'shop', 'news', 'options', 'homebrew', 'discord'];
-		var coolSwag = things[curSelected2];
-		if (curSelected2 == -1) coolSwag = "None";
+		var coolSwag = things[curSelectedInt];
+		if (curSelectedInt == -1) coolSwag = "None";
 		FlxG.watch.addQuick('curSelected', curSelected);
-		FlxG.watch.addQuick('curSelected2String', coolSwag);
-		FlxG.watch.addQuick('curSelected2', curSelected2);
+		FlxG.watch.addQuick('curSelectedString', coolSwag);
+		FlxG.watch.addQuick('curSelectedInt', curSelectedInt);
 		for (item in 0...menuItemsToAddBitch.length) {
-			var spr = menuItemsToAddBitch[item][3];
+			var spr:FlxSprite = menuItemsToAddBitch[item][3];
+
 			if (FlxG.mouse.overlaps(spr))
 			{
-				curSelected2 = spr.ID;
+				if (curSelectedInt != spr.ID) curSelectedInt = spr.ID;
 				return true;
 			}
 		}
@@ -397,19 +391,34 @@ class MainMenuState extends MusicBeatState
 		var date = Date.now();
 		timeTxt.text = '${formatDate(date.getHours())}${theColon}${formatDate(date.getMinutes());}';
 		if (FlxG.keys.anyJustPressed(debugKeys)) MusicBeatState.switchState(new editors.MasterEditorMenu());
-		if (FlxG.keys.justPressed.C) MusicBeatState.switchState(new test.DiscordRPCIconTest());
 		if (FlxG.sound.music.volume < 0.8)
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
 			if(FreeplayState.vocals != null) FreeplayState.vocals.volume += 0.5 * elapsed;
 		}
-    	if (canSelect && (((FlxG.mouse.justPressed || wiimoteReadout.buttons.a) && (!inChannelMode && (!FlxG.mouse.overlaps(launchButton) && !FlxG.mouse.overlaps(backButton)))) && curSelected2 != -1)) select();
-		if (!mouseShit()) curSelected2 = -1;
+    	if (canSelect && (((FlxG.mouse.justPressed || wiimoteReadout.buttons.a) && (!inChannelMode && (!FlxG.mouse.overlaps(launchButton) && !FlxG.mouse.overlaps(backButton)))) && curSelectedInt != -1)) select();
+		if (!mouseShit()) curSelectedInt = -1;
 		FlxG.watch.addQuick('inChannelMode', (inChannelMode ? 'yes' : 'no'));
+		#if debug
 		if (FlxG.keys.justPressed.P) {
 			coolSwag++;
 			MouseCursors.loadCursor((coolSwag % 2 == 1 ? 'homebrew' : 'normal'));
 		}
+		if (FlxG.keys.justPressed.C) MusicBeatState.switchState(new test.DiscordRPCIconTest());
+		#end
+		for (item in 0...menuItemsToAddBitch.length)
+		{
+			var spr:FlxSprite = menuItemsToAddBitch[item][3];
+			var size = curSelectedInt == spr.ID ? 1.1 : 1;
+			spr.scale.x = FlxMath.lerp(size, spr.scale.x, CoolUtil.boundTo(1 - (FlxG.elapsed * 3.125), 0, 1));
+			spr.scale.y = FlxMath.lerp(size, spr.scale.y, CoolUtil.boundTo(1 - (FlxG.elapsed * 3.125), 0, 1));
+		}
 		super.update(elapsed);
+	}
+
+	static function set_curSelectedInt(value:Int):Int {
+		curSelectedInt = value;
+		if (value != -1) FlxG.sound.play(Paths.sound("channelOver", 'preload'), 0.7);
+		return value;
 	}
 }

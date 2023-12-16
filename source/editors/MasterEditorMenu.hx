@@ -18,10 +18,10 @@ using StringTools;
 class MasterEditorMenu extends MusicBeatState
 {
 	var options:Array<String> = [
-		'Week Editor',
+		/*'Week Editor',
 		'Menu Character Editor',
 		'Dialogue Editor',
-		'Dialogue Portrait Editor',
+		'Dialogue Portrait Editor',*/
 		'Character Editor',
 		'Chart Editor'
 	];

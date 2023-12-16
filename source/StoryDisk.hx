@@ -1,3 +1,4 @@
+import flixel.input.keyboard.FlxKey;
 import haxe.io.Path;
 import flixel.math.FlxMath;
 import flixel.FlxG;
@@ -15,6 +16,7 @@ class StoryDisk extends MusicBeatState {
     var textForError:FlxText;
     var discValid:Bool = false;
     var curWeek:Int = -1;
+    var canPress = true;
     var redirections:Map<Int, Array<String>> = [
         1 => ["stupid-cursor", "shop-tv"],
         2 => ["nightanova", "perhaps", "zombie-tag"],
@@ -83,7 +85,20 @@ class StoryDisk extends MusicBeatState {
                 for (i in 0...6) {
                     if (FileSystem.exists('cdreader/week${i}.iso'))
                     {
-                        showTextAlongDisk('Week ${i} Inserted!\n\nPress ENTER to play!');
+                        var leText:String = "Press {RESET1} to reset your highscore.";
+				        leText = StringTools.replace(leText, "{RESET1}", ClientPrefs.keyBinds.get("reset")[0].toString());
+				        if (ClientPrefs.keyBinds.get("reset")[0] != FlxKey.NONE && ClientPrefs.keyBinds.get("reset")[1] != FlxKey.NONE)
+				        {
+				        	leText = "Press {RESET1} or {RESET2} to reset your highscore.";
+				        	leText = StringTools.replace(leText, "{RESET1}", ClientPrefs.keyBinds.get("reset")[0].toString());
+				        	leText = StringTools.replace(leText, "{RESET2}", ClientPrefs.keyBinds.get("reset")[1].toString());
+				        }
+				        if (ClientPrefs.keyBinds.get("reset")[0] == FlxKey.NONE && ClientPrefs.keyBinds.get("reset")[1] != FlxKey.NONE)
+				        {
+				        	leText = "Press {RESET1} to reset your highscore.";
+				        	leText = StringTools.replace(leText, "{RESET1}", ClientPrefs.keyBinds.get("reset")[1].toString());
+				        }
+                        showTextAlongDisk('Week ${i} Inserted!\n\nScore: ${Highscore.getWeekScore("wpf_week" + i)}\n$leText\n\nPress ENTER to play!');
                         showDisc('Disc_${i}', firstTime);
                         curWeek = i;
                         discValid = true;
@@ -181,18 +196,28 @@ class StoryDisk extends MusicBeatState {
         PlayState.isStoryMode = true;
         PlayState.storyWeek = weekNum;
         PlayState.SONG = Song.loadFromJson(songs[0], songs[0]);
-		PlayState.storyDifficulty = 1;
 		LoadingState.loadAndSwitchState(new PlayState(), true);
     }
     var angleForDisc:Float = 0;
     override function update(elapsed:Float) {
         discImage.angle = FlxMath.lerp(angleForDisc, discImage.angle, CoolUtil.boundTo(1 - (elapsed * 3.125), 0, 1));
-        if (controls.BACK || wiimoteReadout.buttons.b)
-        {
-            MusicBeatState.switchState(new MainMenuState());
-            FlxG.stage.window.onDropFile.remove(dropFile);
+        if (canPress) {
+            if (controls.BACK || wiimoteReadout.buttons.b)
+            {
+                MusicBeatState.switchState(new MainMenuState());
+                FlxG.stage.window.onDropFile.remove(dropFile);
+            } else if (FlxG.keys.justPressed.ENTER && curWeek != -1)
+                selectWeek(curWeek);
+            else if (controls.RESET && curWeek != -1) {
+                canPress = false;
+                var substate = new ResetScoreSubState("", "Week " + curWeek, curWeek);
+                substate.closeCallback = () -> {
+	    			canPress = true;
+                    reloadDisk(false);
+	    		}
+                openSubState(substate);
+            }
         }
-        if (FlxG.keys.justPressed.ENTER && curWeek != -1) selectWeek(curWeek);
         super.update(elapsed);
     }
 }
